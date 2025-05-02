@@ -1,8 +1,9 @@
 import type { HashMap } from "effect"
 
-export type IZSet<Key, T> = {
+export type IZSet<Key, Data, W> = {
   readonly _tag: "IZSet"
-  index: HashMap.HashMap<Key, HashMap.HashMap<T, number>>
+  index: HashMap.HashMap<Key, HashMap.HashMap<Data, W>>
+  readonly [Symbol.iterator]: () => Iterator<[Key, HashMap.HashMap<Data, W>], any, any>
 }
 
-export type ZSet<T> = IZSet<void, T>
+export type ZSet<Data, W> = IZSet<void, Data, W>
