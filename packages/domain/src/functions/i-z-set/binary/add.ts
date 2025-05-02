@@ -1,5 +1,8 @@
-import { HashMap, Option } from "effect"
+import { HashMap as HM, Option } from "effect"
+import { beginMutation } from "effect/HashMap"
+import { endMutation } from "effect/HashSet"
 import type { IZSet } from "../../../objs/i-z-set.js"
+import type { Ring } from "../../../objs/ring.js"
 import { make } from "../make.js"
 import { getWeight } from "../unary/leak/get-weight.js"
 import { getZset, getZsetOrEmpty } from "../unary/leak/get-zset.js"
@@ -10,21 +13,38 @@ import { getZset, getZsetOrEmpty } from "../unary/leak/get-zset.js"
  * we add just the weights
  * if i know how to do *algebra* on z-set then I just match them by their indexes and do *algebra* there.
  */
-export const add = <Key, Data, W>(other: IZSet<Key, Data, W>) => (self: IZSet<Key, Data, W>) => {
-  const result = make<Key, Data, W>()
+// export const add = <Key, Data, W>(other: IZSet<Key, Data, W>) => (self: IZSet<Key, Data, W>) => {
+//   const result = make<Key, Data, W>()
 
-  HashMap.union(other.index, self.index)
+//   HashMap.union(other.index, self.index)
 
-  // get union of their keys.
-  const unionKeys = new Set([...HashMap.keys(self.index), ...HashMap.keys(other.index)])
+//   // get union of their keys.
+//   const unionKeys = new Set([...HashMap.keys(self.index), ...HashMap.keys(other.index)])
 
-  for (const key of unionKeys) {
-    // add the elements
-    const getter = getZsetOrEmpty<Key, Data, W>(key)
-    const innerKeysUnion = new Set([...HashMap.keys(getter(self)), ...HashMap.keys(getter(other))])
+//   for (const key of unionKeys) {
+//     // add the elements
+//     const getter = getZsetOrEmpty<Key, Data, W>(key)
+//     const innerKeysUnion = new Set([...HashMap.keys(getter(self)), ...HashMap.keys(getter(other))])
 
-    for (const data of innerKeysUnion) {
-      const getWeight(key, data)
+//     for (const data of innerKeysUnion) {
+//       const getWeight(key, data)
+//     }
+//   }
+// }
+
+export const add = <Key, Data, W>(other: IZSet<Key, Data, W>) => (self: IZSet<Key, Data, W>) => {}
+
+export const addInternal = <Data, W>(ring: Ring<W>) => (other: HM.HashMap<Data, W>) => (self: HM.HashMap<Data, W>) => {
+  let result: HM.HashMap<Data, W> = beginMutation(self)
+  HM.forEach(
+    other,
+    (v, k) => {
+      result = HM.modifyAt<Data, W>(result, k, (existingValue) => {
+        const sum = ring.add(Option.getOrElse(existingValue, () => ring.zero), v)
+        return sum !== 0 ? Option.some(sum) : Option.none()
+      })
     }
-  }
+  )
+
+  return result
 }
