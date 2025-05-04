@@ -1,11 +1,16 @@
-import { HashMap as HM, Option } from "effect"
+import { HashMap as HM, Option, pipe } from "effect"
 import { beginMutation } from "effect/HashMap"
-import { endMutation } from "effect/HashSet"
 import type { IZSet } from "../../../objs/i-z-set.js"
 import type { Ring } from "../../../objs/ring.js"
+import { merge } from "../../hashmap/merge.js"
 import { make } from "../make.js"
-import { getWeight } from "../unary/leak/get-weight.js"
-import { getZset, getZsetOrEmpty } from "../unary/leak/get-zset.js"
+import { mapInternal } from "../unary/leak/map-internal.js"
+
+export const union = <Key, Data, W>(that: IZSet<Key, Data, W>) => (self: IZSet<Key, Data, W>): IZSet<Key, Data, W> =>
+  pipe(
+    self,
+    mapInternal((selfMap) => HM.reduce(selfMap, that.index, (thatMap, value, key) => HM.set(thatMap, key, value)))
+  )
 
 /**
  * how do I add two iZSet together?
@@ -32,7 +37,44 @@ import { getZset, getZsetOrEmpty } from "../unary/leak/get-zset.js"
 //   }
 // }
 
-export const add = <Key, Data, W>(other: IZSet<Key, Data, W>) => (self: IZSet<Key, Data, W>) => {}
+export const add = <Key, Data, W>(ring: Ring<W>) => (other: IZSet<Key, Data, W>) => (self: IZSet<Key, Data, W>) => {
+  // gotta do the annoying matching bs
+  // how to match the indexes together and add them
+  // I have to lists basically [[K1,-],[K2,-], [K3,-]]
+  // and [[K4,-],[K5,-], [K6,-]]
+  // the problem is in matching the
+
+  const result = make<Key, Data, W>()
+
+  // merge takes two and returns one.
+  const mergeFn = merge<HM.HashMap<Data, W>, HM.HashMap<Data, W>, HM.HashMap<Data, W>>((a, b) =>
+    Option.match(a, {
+      onSome: (a) =>
+        Option.match(b, {
+          onSome: (b) => addInternal(ring)(a)(b),
+          onNone: () => a
+        }),
+      onNone: () => b
+    })
+  )
+
+  // fn from map to map.
+  const t = mapInternal
+
+  const union = new Set([...HM.keys(self.index), ...HM.keys(other.index)])
+  union.forEach((key) => {
+    const [a, b] = [self, other].map((x) => HM.get(x.index, key))
+
+    Option.match(a, {
+      onSome: (a) =>
+        Option.match(b, {
+          onSome: (b) => addInternal(ring)(a)(b),
+          onNone: () => a
+        }),
+      onNone: () => b
+    })
+  })
+}
 
 export const addInternal = <Data, W>(ring: Ring<W>) => (other: HM.HashMap<Data, W>) => (self: HM.HashMap<Data, W>) => {
   let result: HM.HashMap<Data, W> = beginMutation(self)
