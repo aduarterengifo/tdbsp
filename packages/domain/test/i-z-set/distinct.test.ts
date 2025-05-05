@@ -1,12 +1,13 @@
 import { describe, expect, it } from "@effect/vitest"
 import { Data, HashMap } from "effect"
+import { equals } from "../../src/functions/i-z-set/binary/predicates/equals.js"
 import { make } from "../../src/functions/i-z-set/make.js"
 import { distinct } from "../../src/functions/i-z-set/unary/distinct.js"
 import { Z } from "../../src/objs/z.js"
 
 describe("iZset", () => {
   it("distinct", () => {
-    const inputIZSet = make<number, { x: number; y: number }, number>(
+    const input = make<number, { x: number; y: number }, number>(
       HashMap.fromIterable([
         [
           1,
@@ -35,7 +36,7 @@ describe("iZset", () => {
       ])
     )
 
-    const expectedIZSet = make<number, { x: number; y: number }, number>(
+    const expected = make<number, { x: number; y: number }, number>(
       HashMap.fromIterable([
         [
           1,
@@ -61,8 +62,8 @@ describe("iZset", () => {
       ])
     )
 
-    const distinctIZset = distinct(Z)(inputIZSet)
+    const result = distinct(Z)(input)
 
-    expect(expectedIZSet).toStrictEqual(distinctIZset)
+    expect(equals(Z)(result)(expected)).toBe(true)
   })
 })
