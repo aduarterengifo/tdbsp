@@ -22,7 +22,7 @@
   "dependencies": {
     "@effect/platform": "latest",
     "@effect/platform-node": "latest",
-    "@template/domain": "workspace:^",
+    "@a33/tdbsp": "workspace:^",
     "effect": "latest"
   },
   "effect": {

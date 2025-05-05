@@ -1,19 +1,19 @@
 import { HashMap, Option } from "effect"
-import type { IZSet } from "../../../objs/i-z-set.js"
 import type { Ring } from "../../../objs/ring.js"
-import { make } from "../make.js"
+import { mapInternal } from "../abstractions/map-internal.js"
 
-// its not really that abstract though is it? I am still hardcoding z-sets here
-
-export const distinct = <Key, Data, W>(ring: Ring<W>) => (self: IZSet<Key, Data, W>) =>
-  make<Key, Data, W>(
-    HashMap.map<HashMap.HashMap<Data, W>, HashMap.HashMap<Data, W>, Key>((zset, _) =>
-      distinctInternal<Data, W>(ring)(zset)
-    )(self.index)
+/**
+ * @pointfree
+ */
+export const distinct = <Key, Data, W>(ring: Ring<W>) =>
+  mapInternal<Key, Data, Data, W>(
+    HashMap.map(
+      distinctInternal<Data, W>(ring)
+    )
   )
 
 /**
- * point-free distinctInternal
+ * @pointfree
  */
 export const distinctInternal = <Data, W>(ring: Ring<W>) =>
   HashMap.filterMap<W, Data, W>((w, _) =>

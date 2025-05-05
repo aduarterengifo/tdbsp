@@ -1,10 +1,8 @@
-import { HashMap } from "effect"
-import type { IZSet } from "../../../../objs/i-z-set.js"
-import { make } from "../../make.js"
+import { HashMap as HM } from "effect"
+import { mapInternal } from "../../abstractions/map-internal.js"
 
 /**
  * @immutable
  * @leaks
  */
-export const setZset = <Key, Data, W>(key: Key, zset: HashMap.HashMap<Data, W>) => (self: IZSet<Key, Data, W>) =>
-  make<Key, Data, W>(HashMap.set(self.index, key, zset))
+export const setZset = <Key, Data, W>(key: Key, zset: HM.HashMap<Data, W>) => mapInternal(HM.set(key, zset))

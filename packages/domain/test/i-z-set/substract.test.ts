@@ -5,8 +5,8 @@ import { sub } from "../../src/functions/i-z-set/binary/sub.js"
 import { make } from "../../src/functions/i-z-set/make.js"
 import { Z } from "../../src/objs/z.js"
 
-describe("hashmap", () => {
-  it("substract different", () => {
+describe("sub", () => {
+  it("different", () => {
     const a = make<number, number, number>(HM.fromIterable([
       [1, HM.fromIterable([[1, 2]])],
       [2, HM.fromIterable([[3, 3]])],
@@ -28,7 +28,7 @@ describe("hashmap", () => {
     // expect(result).toStrictEqual(expected)
     expect(equals(Z)(result)(expected)).toBe(true)
   })
-  it("substract same", () => {
+  it("same", () => {
     const a = make<number, number, number>(HM.fromIterable([
       [1, HM.fromIterable([[1, 2]])],
       [2, HM.fromIterable([[3, 3]])],

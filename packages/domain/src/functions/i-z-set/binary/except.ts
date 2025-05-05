@@ -2,8 +2,8 @@ import { HashMap as HM, Option, pipe } from "effect"
 import type { IZSet } from "../../../objs/i-z-set.js"
 import type { Ring } from "../../../objs/ring.js"
 import { merge } from "../../hashmap/merge.js"
+import { mapInternal } from "../abstractions/map-internal.js"
 import { distinctInternal } from "../unary/distinct.js"
-import { mapInternal } from "../unary/leak/map-internal.js"
 
 /**
  * @returns elements in self but not in other.

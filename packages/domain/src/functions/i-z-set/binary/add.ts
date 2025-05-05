@@ -3,7 +3,7 @@ import type { IZSet } from "../../../objs/i-z-set.js"
 import type { Ring } from "../../../objs/ring.js"
 import { mergeInternal } from "../../hashmap/merge-alt.js"
 import { merge } from "../../hashmap/merge.js"
-import { mapInternal } from "../unary/leak/map-internal.js"
+import { mapInternal } from "../abstractions/map-internal.js"
 
 export const add =
   <Key, Data, W>(ring: Ring<W>) => (other: IZSet<Key, Data, W>) => (self: IZSet<Key, Data, W>): IZSet<Key, Data, W> => {

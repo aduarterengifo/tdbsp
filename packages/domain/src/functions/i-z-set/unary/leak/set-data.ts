@@ -1,22 +1,20 @@
 import { HashMap } from "effect"
-import type { IZSet } from "../../../../objs/i-z-set.js"
-import { make } from "../../make.js"
-import { getZsetOrEmpty } from "./get-zset.js"
+\import { getOrEmpty } from "../../../hashmap/unary/get-or-empty.js"
+import { mapInternal } from "../../abstractions/map-internal.js"
 
 /**
  * @immutable
  * @leaks
  */
-export const setData = <Key, Data, W>(key: Key, data: Data, w: W) => (self: IZSet<Key, Data, W>) => {
-  make<Key, Data, W>(
+export const setData = <Key, Data, W>(key: Key, data: Data, w: W) =>
+  mapInternal<Key, Data, Data, W>((self) =>
     HashMap.set(
-      self.index,
+      self,
       key,
       HashMap.set(
-        getZsetOrEmpty<Key, Data, W>(key)(self),
+        getOrEmpty<Key, Data, W>(key)(self),
         data,
         w
       )
     )
   )
-}
