@@ -7,7 +7,6 @@ import { mapInternal } from "../unary/leak/map-internal.js"
 
 export const sub =
   <Key, Data, W>(ring: Ring<W>) => (other: IZSet<Key, Data, W>) => (self: IZSet<Key, Data, W>): IZSet<Key, Data, W> => {
-    // merge takes two and returns one.
     const mergeFn = merge<HM.HashMap<Data, W>, HM.HashMap<Data, W>, HM.HashMap<Data, W>, Key, Key>((a, b) =>
       Option.match(a, {
         onSome: (a) =>

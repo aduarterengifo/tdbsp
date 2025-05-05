@@ -23,7 +23,7 @@ export const mul =
 
     return pipe(
       self,
-      mapInternal((self) => mergeFn(other.index)(self))
+      mapInternal((self) => mergeFn(self)(other.index))
     )
   }
 
