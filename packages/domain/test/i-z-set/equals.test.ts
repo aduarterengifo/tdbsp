@@ -1,7 +1,6 @@
 import { describe, expect, it } from "@effect/vitest"
 import { HashMap as HM } from "effect"
 import { equals } from "../../src/functions/i-z-set/binary/predicates/equals.js"
-import { sub } from "../../src/functions/i-z-set/binary/sub.js"
 import { make } from "../../src/functions/i-z-set/make.js"
 import { Z } from "../../src/objs/z.js"
 
@@ -12,7 +11,6 @@ describe("hashmap", () => {
       [2, HM.fromIterable([[3, 3]])],
       [3, HM.fromIterable([[3, 1]])]
     ]))
-
     expect(equals(Z)(a)(a)).toBe(true)
   })
   it("equals false", () => {

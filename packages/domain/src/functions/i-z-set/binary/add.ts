@@ -1,12 +1,20 @@
-import { Option } from "effect"
+import type { HashMap as HM } from "effect"
+import { Option, pipe } from "effect"
 import type { Ring } from "../../../objs/ring.js"
+import { zeroToNone } from "../../../objs/utils/ring.js"
 import { foldOptional } from "../../hashmap/n-ary/fold.js"
 import { fold } from "../abstractions/deep-fold-internal.js"
 
 export const add = <Key, Data, W>(ring: Ring<W>) =>
   fold<Key, Data, W>(
-    foldOptional((a, b) => {
-      const res = ring.add(Option.getOrElse(a, () => ring.zero), Option.getOrElse(b, () => ring.zero))
-      return res !== 0 ? Option.some(res) : Option.none()
-    })
+    (a: HM.HashMap<Data, W>, b: HM.HashMap<Data, W>) =>
+      foldOptional<Data, W>((a, b) =>
+        pipe(
+          Option.match(a, {
+            onSome: (a) => ring.add(a, b),
+            onNone: () => b
+          }),
+          zeroToNone<W>(ring)
+        )
+      )([a, b])
   )

@@ -1,44 +1,24 @@
-import { HashMap as HM, Option, pipe } from "effect"
-import type { IZSet } from "../../../objs/i-z-set.js"
+import type { HashMap as HM } from "effect"
+import { Option, pipe } from "effect"
 import type { Ring } from "../../../objs/ring.js"
-import { merge } from "../../hashmap/merge.js"
-import { mapInternal } from "../abstractions/map-internal.js"
-import { distinctInternal } from "../unary/distinct.js"
+import { zeroToNone } from "../../../objs/utils/ring.js"
+import { foldOptional } from "../../hashmap/n-ary/fold.js"
+import { distinct } from "../../hashmap/unary/distinct.js"
+import { fold } from "../abstractions/deep-fold-internal.js"
 
 /**
  * @returns elements in self but not in other.
  */
-export const except = <Key, Data, W>(ring: Ring<W>) => (other: IZSet<Key, Data, W>) => {
-  const mergeFn = merge<HM.HashMap<Data, W>, HM.HashMap<Data, W>, HM.HashMap<Data, W>, Key, Key>(
-    (selfVal, otherVal) => {
-      return Option.match(selfVal, {
-        onSome: (selfVal) =>
-          Option.match(otherVal, {
-            onSome: (otherVal) => exceptInternal<Data, W>(ring)(otherVal)(selfVal),
-            onNone: () => selfVal
+export const except = <Key, Data, W>(ring: Ring<W>) =>
+  fold<Key, Data, W>(
+    (a: HM.HashMap<Data, W>, b: HM.HashMap<Data, W>) =>
+      foldOptional<Data, W>((a, b) =>
+        pipe(
+          Option.match(a, {
+            onSome: () => ring.zero,
+            onNone: () => b
           }),
-        onNone: () => HM.empty<Data, W>()
-      })
-    }
+          zeroToNone<W>(ring)
+        )
+      )([a, b].map(distinct(ring)))
   )
-
-  return pipe(
-    mergeFn(other.index),
-    mapInternal
-  )
-}
-
-export const exceptInternal =
-  <Data, W>(ring: Ring<W>) => (other: HM.HashMap<Data, W>) => (self: HM.HashMap<Data, W>): HM.HashMap<Data, W> => {
-    const result = HM.beginMutation(HM.empty<Data, W>())
-
-    const selfDistinct = distinctInternal(ring)(self)
-    const otherDistinct = distinctInternal(ring)(other)
-
-    HM.forEach(selfDistinct, (w, data) => {
-      if (ring.leq(Option.getOrElse(HM.get(otherDistinct, data), () => ring.zero), ring.zero)) {
-        HM.set(result, data, ring.one)
-      }
-    })
-    return HM.endMutation(result)
-  }

@@ -17,7 +17,7 @@ describe("sub", () => {
       [3, HM.fromIterable([[3, -1]])]
     ]))
 
-    const result = sub(Z)(a)(b)
+    const result = sub(Z)([a, b])
 
     const expected = make<number, number, number>(HM.fromIterable([
       [1, HM.fromIterable([[1, 1]])],
@@ -35,7 +35,7 @@ describe("sub", () => {
       [3, HM.fromIterable([[3, 1]])]
     ]))
 
-    const result = sub(Z)(a)(a)
+    const result = sub(Z)([a, a])
 
     const expected = make<number, number, number>(HM.fromIterable([
       [1, HM.fromIterable([])],

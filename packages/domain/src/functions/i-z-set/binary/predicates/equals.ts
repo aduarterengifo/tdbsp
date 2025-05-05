@@ -8,4 +8,4 @@ import { sub } from "../sub.js"
  * @predicate
  */
 export const equals = <Key, Data, W>(ring: Ring<W>) => (other: IZSet<Key, Data, W>) => (self: IZSet<Key, Data, W>) =>
-  pipe(self, sub(ring)(other), isEmpty)
+  pipe([self, other], sub(ring), isEmpty)
