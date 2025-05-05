@@ -1,19 +1,20 @@
 import { HashMap as HM, Option, pipe } from "effect"
-import { endMutation } from "effect/HashMap"
+import { beginMutation, endMutation } from "effect/HashMap"
 import type { IZSet } from "../../../objs/i-z-set.js"
 import type { Ring } from "../../../objs/ring.js"
 import { merge } from "../../hashmap/merge.js"
 import { mapInternal } from "../unary/leak/map-internal.js"
 
 export const mul =
-  <Key, Data, W>(ring: Ring<W>) => (other: IZSet<Key, Data, W>) => (self: IZSet<Key, Data, W>): IZSet<Key, Data, W> => {
-    // merge takes two and returns one.
-    // NEED an extra cleanup check for empty data
+  <Key, Data, W>(ring: Ring<W>) =>
+  (fn: (x: Data, y: Data) => Data) =>
+  (other: IZSet<Key, Data, W>) =>
+  (self: IZSet<Key, Data, W>): IZSet<Key, Data, W> => {
     const mergeFn = merge<HM.HashMap<Data, W>, HM.HashMap<Data, W>, HM.HashMap<Data, W>, Key, Key>((a, b) =>
       Option.match(a, {
         onSome: (a) =>
           Option.match(b, {
-            onSome: (b) => mulInternal<Data, W>(ring)(a)(b),
+            onSome: (b) => mulInternal<Data, Data, Data, W>(ring)(fn)(a)(b),
             onNone: () => a
           }),
         onNone: () => Option.getOrElse(b, () => HM.empty<Data, W>())
@@ -28,7 +29,7 @@ export const mul =
 
 /**
  * @immutable
- * handles zero-sum elimination
+ * does secret hush hush lightweight mutations.
  */
 export const mulInternal =
   <D0, D1, D2, W0>(ring: Ring<W0>) =>
@@ -37,13 +38,13 @@ export const mulInternal =
   (
     self: HM.HashMap<D0, W0>
   ): HM.HashMap<D2, W0> => {
-    const result = HM.empty<D2, W0>()
+    const result = beginMutation(HM.empty<D2, W0>())
 
-    HM.forEach(self, (valueA, keyA) => {
-      HM.forEach(other, (valueB, keyB) => {
+    HM.forEach(self, (valueA, keyA) => { // one here
+      HM.forEach(other, (valueB, keyB) => { // one  here
         HM.set(result, fn(keyA, keyB), ring.mul(valueA, valueB))
       })
     })
 
-    return result
+    return endMutation(result)
   }
