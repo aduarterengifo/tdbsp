@@ -2,7 +2,7 @@ import type { Option } from "effect"
 import { HashMap as HM } from "effect"
 
 export const merge = <V0, V1, V2, K0, K1>(
-  f: (a: Option.Option<V0>, b: Option.Option<V1>) => V2
+  f: (selfVal: Option.Option<V0>, thatVal: Option.Option<V1>) => V2
 ) =>
 (that: HM.HashMap<K1, V1>) =>
 (self: HM.HashMap<K0, V0>) => {

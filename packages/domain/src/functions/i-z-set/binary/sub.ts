@@ -3,6 +3,8 @@ import type { IZSet } from "../../../objs/i-z-set.js"
 import type { Ring } from "../../../objs/ring.js"
 import { mergeInternal } from "../../hashmap/merge-alt.js"
 import { merge } from "../../hashmap/merge.js"
+import { foldOptional } from "../../hashmap/n-ary/fold.js"
+import { fold } from "../abstractions/deep-fold-internal.js"
 import { mapInternal } from "../abstractions/map-internal.js"
 
 export const sub =

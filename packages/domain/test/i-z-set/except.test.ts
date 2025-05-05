@@ -22,12 +22,12 @@ it("except", () => {
 
   Array.from(distinct(Z)(b).index).map((x) => Array.from(x).map((z) => console.log(z)))
 
-  const result = except(Z)(a)(b)
+  const result = except(Z)(b)(a)
 
   const expected = make<number, number, number>(HM.fromIterable([
     [1, HM.fromIterable([])],
     [2, HM.fromIterable([[3, 3]])],
-    [3, HM.fromIterable([])] // should go bye bye
+    [3, HM.fromIterable([[3, 1]])] // should go bye bye
   ]))
   // debug
   expect(result).toStrictEqual(expected)
