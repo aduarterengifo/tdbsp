@@ -1,4 +1,4 @@
-import { type HashMap as HM, pipe } from "effect"
+import { pipe } from "effect"
 import type { IZSet } from "../../../../objs/i-z-set.js"
 import type { Ring } from "../../../../objs/ring.js"
 import { isEmpty } from "../../unary/predicate/isEmpty.js"
