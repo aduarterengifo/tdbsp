@@ -34,7 +34,7 @@ describe("stream lifted sub", () => {
 
       const Sb = Stream.make(c, d)
 
-      const result = sub<number, number, number>(Z)(Sa, Sb)
+      const result = sub<number, number, number>(Z)(Sb)(Sa)
 
       const expected = Stream.make(
         make<number, number, number>(HM.fromIterable([])),
@@ -43,7 +43,7 @@ describe("stream lifted sub", () => {
           [4, HM.fromIterable([[4, 2]])]
         ]))
       )
-      const Se = equals(Z)(result, expected)
+      const Se = equals(Z)(expected)(result)
 
       // const SeChunk = Chunk.toReadonlyArray(yield* result.pipe(Stream.runCollect)).map((x) =>
       //   console.log(Array.from(x.index).map(([a, b]) => [a, Array.from(b)[0]]))

@@ -10,13 +10,13 @@ export const join =
   <Key, Data, W>(ring: Ring<W>) =>
   (fn: (x: Data, y: Data) => Data) =>
   (other: IZSet<Key, Data, W>) =>
-  (self: IZSet<Key, Data, W>): IZSet<Key, Data, W> => {
-    const mergeFn = mergePerfect<HM.HashMap<Data, W>, HM.HashMap<Data, W>, HM.HashMap<Data, W>, Key, Key>((a, b) =>
-      mulInternal<Data, Data, Data, W>(ring)(fn)(a)(b)
-    )
-
-    return pipe(
+  (self: IZSet<Key, Data, W>): IZSet<Key, Data, W> =>
+    pipe(
       self,
-      mapInternal((self) => mergeFn(self)(other.index))
+      mapInternal((self) =>
+        pipe(
+          mulInternal<Data, Data, Data, W>(ring)(fn),
+          mergePerfect<HM.HashMap<Data, W>, HM.HashMap<Data, W>, HM.HashMap<Data, W>, Key, Key>
+        )(other.index)(self)
+      )
     )
-  }

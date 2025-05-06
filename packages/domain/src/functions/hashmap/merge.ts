@@ -32,7 +32,7 @@ export const mergeOptional = <V0, V1, V2, K0, K1>(
 }
 
 export const mergePerfect = <V0, V1, V2, K0, K1>(
-  f: (selfVal: V0, thatVal: V1) => V2
+  f: (thatVal: V1) => (selfVal: V0) => V2
 ) =>
 (that: HM.HashMap<K1, V1>) =>
 (self: HM.HashMap<K0, V0>) => {
@@ -43,8 +43,7 @@ export const mergePerfect = <V0, V1, V2, K0, K1>(
     Option.composeK(
       (x: Option.Option<[V0, V1]>) => x,
       ([a, b]) => {
-        console.log("got", [a, b])
-        return Option.some(HM.set(result, key, f(a, b)))
+        return Option.some(HM.set(result, key, f(b)(a)))
       } // side-effect
     )(Option.all([HM.get(self, key), HM.get(that, key)]))
   )

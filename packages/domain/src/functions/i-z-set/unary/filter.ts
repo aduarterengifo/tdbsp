@@ -1,17 +1,11 @@
-import { HashMap } from "effect"
-import { mapInternal } from "../abstractions/map-internal.js"
+import { HashMap, pipe } from "effect"
+import { deepMapInternal } from "../abstractions/deep-map-internal.js"
 
 /**
  * @pointfree
  */
 export const filter = <Key, Data, W>(predicate: (w: W, data: Data) => boolean) =>
-  mapInternal<Key, Data, Data, W>(
-    HashMap.map(
-      filterInternal<Data, W>(predicate)
-    )
+  pipe(
+    HashMap.filter<Data, W>(predicate),
+    deepMapInternal<Key, Data, Data, W>
   )
-
-/**
- * @pointfree
- */
-export const filterInternal = <Data, W>(predicate: (w: W, data: Data) => boolean) => HashMap.filter<Data, W>(predicate) // TODO: map should be enough
