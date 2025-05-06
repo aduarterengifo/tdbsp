@@ -10,6 +10,9 @@ export const BaseA = Schema.Struct({
 
 export type BaseA = typeof BaseA.Type
 
+export const BaseAMap = BaseA.omit("a")
+export type BaseAMap = typeof BaseAMap.Type
+
 export const BaseAArbitrary = Arbitrary.make(BaseA)
 
 export const sampleBaseA = (n: number): Array<[BaseA, string]> =>

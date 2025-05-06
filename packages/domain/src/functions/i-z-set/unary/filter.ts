@@ -1,10 +1,13 @@
 import { HashMap, pipe } from "effect"
+import type { IZSet } from "../../../objs/i-z-set.js"
 import { deepMapInternal } from "../abstractions/deep-map-internal.js"
 
 /**
  * @pointfree
  */
-export const filter = <Key, Data, W>(predicate: (w: W, data: Data) => boolean) =>
+export const filter = <Key, Data, W>(
+  predicate: (w: W, data: Data) => boolean
+): (iZSet: IZSet<K, Data, W>) => IZSet<K, Data, W> =>
   pipe(
     HashMap.filter<Data, W>(predicate),
     deepMapInternal<Key, Data, Data, W>
