@@ -40,8 +40,8 @@ export const mulInternal =
   ): HM.HashMap<D2, W0> => {
     const result = beginMutation(HM.empty<D2, W0>())
 
-    HM.forEach(self, (valueA, keyA) => { // one here
-      HM.forEach(other, (valueB, keyB) => { // one  here
+    HM.forEach(self, (valueA, keyA) => {
+      HM.forEach(other, (valueB, keyB) => {
         HM.set(result, fn(keyA, keyB), ring.mul(valueA, valueB))
       })
     })

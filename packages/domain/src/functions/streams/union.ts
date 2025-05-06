@@ -6,4 +6,8 @@ import { distinct } from "./lifted-distinct.js"
 
 export const liftedUnion =
   <K, D, W>(ring: Ring<W>) => (other: Stream.Stream<IZSet<K, D, W>>) => (self: Stream.Stream<IZSet<K, D, W>>) =>
-    pipe(self, add<K, D, W>(ring)(other), distinct<K, D, W>(ring))
+    pipe(
+      self,
+      add<K, D, W>(ring)(other),
+      distinct<K, D, W>(ring)
+    )
