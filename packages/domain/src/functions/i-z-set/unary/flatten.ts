@@ -1,18 +1,23 @@
 import { HashMap as HM, pipe } from "effect"
-import type { IZSet } from "../../../objs/i-z-set.js"
-import { fold } from "../../hashmap/n-ary/fold.js"
-import { foldOptional } from "../abstractions/deep-fold-internal.js"
+import { getOrEmpty } from "../../hashmap/unary/get-or-empty.js"
 import { mapInternal } from "../abstractions/map-internal.js"
-import { mergeOptional } from "../abstractions/merge.js"
 
-export const flatten = <K, D0, D1, W>(fn: (k: K, d: D0) => D1) => (self: IZSet<K, D0, W>) => {
-  //   const t = pipe(
-  //     (self: HM.HashMap<K, HM.HashMap<D0, W>>) => {
-  //         fold<D,V>(f:())
-  //     },
-  //     mapInternal<K, D0, D1, W> // apply f on the index of self.
-  //   )
-  const t = HM.empty<0, HM.HashMap<D1, W>>()
-
-  mergeOptional((selfVal, thatVal) => {})
-}
+export const flatten = <K, D0, D1, W>(fn: (k: K, d: D0) => D1) =>
+  pipe(
+    HM.reduce<HM.HashMap<0, HM.HashMap<D1, W>>, HM.HashMap<D0, W>, K>(
+      HM.empty<0, HM.HashMap<D1, W>>(),
+      (outerAcc, val, key) =>
+        HM.reduce<HM.HashMap<0, HM.HashMap<D1, W>>, W, D0>(
+          outerAcc,
+          (acc, w, data) =>
+            HM.set<0, HM.HashMap<D1, W>>(
+              0,
+              HM.set(
+                fn(key, data),
+                w
+              )(getOrEmpty<0, D1, W>(0)(acc))
+            )(acc)
+        )(val)
+    ),
+    mapInternal<K, 0, D0, D1, W>
+  )

@@ -8,9 +8,9 @@ import { foldInternal } from "./fold-internal.js"
  * returns a z-set with the function applied to the underlying hashmap.
  */
 export const mapInternal =
-  <K, D0, D1, W0>(f: (map: HM.HashMap<K, HM.HashMap<D0, W0>>) => HM.HashMap<K, HM.HashMap<D1, W0>>) =>
+  <K0, K1, D0, D1, W0>(f: (map: HM.HashMap<K0, HM.HashMap<D0, W0>>) => HM.HashMap<K1, HM.HashMap<D1, W0>>) =>
   (iZSet: IZSet<K, D0, W0>) =>
     pipe(
       foldInternal(f)(iZSet),
-      make<K, D1, W0>
+      make<K1, D1, W0>
     )

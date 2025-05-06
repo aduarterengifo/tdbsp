@@ -14,6 +14,23 @@ export const merge = <V0, V1, V2, K0, K1>(
   return HM.endMutation(result)
 }
 
+export const mergeArray = <V0, V1, K>(
+  f: (values: Array<Option.Option<V0>>) => V1
+) =>
+(maps: Array<HM.HashMap<K, V0>>) => {
+  const result = HM.beginMutation(HM.empty<K, V1>())
+  const union = new Set<K>(maps.flatMap((map) => Array.from(HM.keys(map))))
+
+  union.forEach((key) => {
+    const values = maps.map((map) => HM.get(map, key))
+    HM.set(result, key, f(values))
+  })
+  return HM.endMutation(result)
+}
+
+/**
+ * maybe conditional is a better name.
+ */
 export const mergeOptional = <V0, V1, V2, K0, K1>(
   f: (selfVal: Option.Option<V0>, thatVal: Option.Option<V1>) => Option.Option<V2>
 ) =>
