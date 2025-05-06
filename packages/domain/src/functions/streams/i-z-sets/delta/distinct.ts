@@ -5,7 +5,7 @@ import { iZSetDelayOp } from "../../abelian-group/i-zset-stream/delay.js"
 import { iZSetIntOp } from "../../abelian-group/i-zset-stream/int.js"
 import { h } from "../lifted-h.js"
 
-export const distinctDelta = <Key, Data, W>(ring: Ring<W>) => (s: Stream.Stream<IZSet<Key, Data, W>>) =>
+export const deltaDistinct = <Key, Data, W>(ring: Ring<W>) => (s: Stream.Stream<IZSet<Key, Data, W>>) =>
   h<Key, Data, W>(ring)(pipe(
     s,
     iZSetIntOp<Key, Data, W>(ring),

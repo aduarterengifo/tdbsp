@@ -32,7 +32,7 @@ describe("stream lifted join", () => {
 
       const Sb = Stream.make(c, d)
 
-      const result = join<number, number, number>(Z)((a, b) => a + b)(Sb)(Sa)
+      const result = join<number, number, number, number, number>(Z)((a, b) => a + b)(Sb)(Sa)
 
       const expected = Stream.make(
         make<number, number, number>(HM.fromIterable([

@@ -1,12 +1,12 @@
 import { pipe } from "effect"
 import type { IZSet } from "../../objs/i-z-set.js"
 import type { Ring } from "../../objs/ring.js"
-import { join as join2 } from "../i-z-set/binary/join.js"
+import { join as staticJoin } from "../i-z-set/binary/join.js"
 import { binaryLift } from "../i-z-set/lift.js"
 
-export const join = <Key, Data, W>(ring: Ring<W>) => (fn: (a: Data, b: Data) => Data) =>
+export const join = <Key, D0, D1, D2, W>(ring: Ring<W>) => (fn: (a: D0, b: D1) => D2) =>
   pipe(
-    (ZSetA: IZSet<Key, Data, W>, ZSetB: IZSet<Key, Data, W>): IZSet<Key, Data, W> =>
-      join2<Key, Data, W>(ring)(fn)(ZSetB)(ZSetA),
+    (self: IZSet<Key, D0, W>, other: IZSet<Key, D1, W>): IZSet<Key, D2, W> =>
+      staticJoin<Key, D0, D1, D2, W>(ring)(fn)(other)(self),
     binaryLift
   )

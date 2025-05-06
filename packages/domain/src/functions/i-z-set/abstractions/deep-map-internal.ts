@@ -10,3 +10,11 @@ export const deepMapInternal = <K, D0, D1, W0>(f: (map: HM.HashMap<D0, W0>) => H
     HM.map<HM.HashMap<D1, W0>, HM.HashMap<D0, W0>, K>(f),
     mapInternal
   )
+
+// export const ultraDeepMapInternal = <K, D0, D1, W0>(f: (data: W0, key: D0) => D1) => {
+//   const t = HM.map(f)
+//   return pipe(
+//     HM.map<HM.HashMap<D1, W0>, HM.HashMap<D0, W0>, K>(t),
+//     mapInternal
+//   )
+// }

@@ -6,4 +6,4 @@ export type IZSet<Key, Data, W> = {
   readonly [Symbol.iterator]: () => Iterator<[Key, HashMap.HashMap<Data, W>], any, any>
 }
 
-export type ZSet<Data, W> = IZSet<void, Data, W>
+export type ZSet<Data, W> = IZSet<0, Data, W>

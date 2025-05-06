@@ -11,3 +11,5 @@ export const mergeOptional = <V0, V1, V2, K0, K1, W0, W1, W2>(
   make<K0 | K1, V2, W>(
     merge<HM.HashMap<V0, W0>, HM.HashMap<V1, W1>, HM.HashMap<V2, W2>, K0, K1>(f)(that.index)(self.index)
   )
+
+// export const mergeOptionalMap = mergeOptional<V0, V1, V2, K0, K1, W0, W1, W2>()

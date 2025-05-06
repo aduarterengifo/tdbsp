@@ -1,5 +1,5 @@
-import { HashMap } from "effect"
-\import { getOrEmpty } from "../../../hashmap/unary/get-or-empty.js"
+import { pipe } from "effect"
+import { setInner } from "../../../hashmap/unary/set-inner.js"
 import { mapInternal } from "../../abstractions/map-internal.js"
 
 /**
@@ -7,14 +7,7 @@ import { mapInternal } from "../../abstractions/map-internal.js"
  * @leaks
  */
 export const setData = <Key, Data, W>(key: Key, data: Data, w: W) =>
-  mapInternal<Key, Data, Data, W>((self) =>
-    HashMap.set(
-      self,
-      key,
-      HashMap.set(
-        getOrEmpty<Key, Data, W>(key)(self),
-        data,
-        w
-      )
-    )
+  pipe(
+    setInner(key, data, w),
+    mapInternal<Key, Data, Data, W>
   )
