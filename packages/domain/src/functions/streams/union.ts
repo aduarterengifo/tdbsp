@@ -1,6 +1,7 @@
 import type { Stream } from "effect"
 import { pipe } from "effect"
 import type { IZSet } from "../../objs/i-z-set.js"
+import type { Ring } from "../../objs/ring.js"
 import { add } from "./lifted-add.js"
 import { distinct } from "./lifted-distinct.js"
 

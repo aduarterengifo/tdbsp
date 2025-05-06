@@ -6,24 +6,24 @@ import { merge } from "../../hashmap/merge.js"
 import { mapInternal } from "../abstractions/map-internal.js"
 
 export const mul =
-  <Key, Data, W>(ring: Ring<W>) =>
-  (fn: (x: Data, y: Data) => Data) =>
-  (other: IZSet<Key, Data, W>) =>
-  (self: IZSet<Key, Data, W>): IZSet<Key, Data, W> => {
-    const mergeFn = merge<HM.HashMap<Data, W>, HM.HashMap<Data, W>, HM.HashMap<Data, W>, Key, Key>((a, b) =>
+  <K, D, W>(ring: Ring<W>) =>
+  (fn: (x: D, y: D) => D) =>
+  (other: IZSet<K, D, W>) =>
+  (self: IZSet<K, D, W>): IZSet<K, D, W> => {
+    const mergeFn = merge<HM.HashMap<D, W>, HM.HashMap<D, W>, HM.HashMap<D, W>, K, K>((a, b) =>
       Option.match(a, {
         onSome: (a) =>
           Option.match(b, {
-            onSome: (b) => mulInternal<Data, Data, Data, W>(ring)(fn)(a)(b),
+            onSome: (b) => mulInternal<D, D, D, W>(ring)(fn)(a)(b),
             onNone: () => a
           }),
-        onNone: () => Option.getOrElse(b, () => HM.empty<Data, W>())
+        onNone: () => Option.getOrElse(b, () => HM.empty<D, W>())
       })
     )
 
     return pipe(
       self,
-      mapInternal((self) => mergeFn(self)(other.index))
+      mapInternal<K, K, D, D, W>((self) => mergeFn(self)(other.index))
     )
   }
 
