@@ -1,10 +1,11 @@
-import type { Stream } from "effect"
+import { Effect, type Stream } from "effect"
 import type { IZSet } from "../../../../objs/i-z-set.js"
 import type { Ring } from "../../../../objs/ring.js"
 import { iZSetDelayOp } from "../../abelian-group/i-zset-stream/delay.js"
 import { iZSetIntOp } from "../../abelian-group/i-zset-stream/int.js"
 import { add } from "../../lifted-add.js"
 import { join } from "../../lifted-join.js"
+import { logStream } from "../utils.js"
 
 export const deltaJoin = <
   K,
@@ -17,12 +18,20 @@ export const deltaJoin = <
   fn: (m0: D0, m1: D1) => D2
 ) =>
 (Sb: Stream.Stream<IZSet<K, D1, W>>) =>
-(Sa: Stream.Stream<IZSet<K, D0, W>>) => {
-  const iSa = iZSetIntOp<K, D0, W>(ring)(Sa)
-  const iSb = iZSetIntOp<K, D1, W>(ring)(Sb)
-  const iDSb = iZSetDelayOp<K, D1, W>(ring)(iSb)
-  const jiSaSb = join<K, D0, D1, D2, W>(ring)(fn)(Sb)(iSa)
-  const jiDSbSa = join<K, D0, D1, D2, W>(ring)(fn)(iDSb)(Sa)
+(Sa: Stream.Stream<IZSet<K, D0, W>>): Effect.Effect<Stream.Stream<IZSet<K, D2, W>>, never, never> =>
+  Effect.gen(function*() {
+    const iSa = iZSetIntOp<K, D0, W>(ring)(Sa)
+    yield* logStream(iSa)
+    const iSb = iZSetIntOp<K, D1, W>(ring)(Sb)
+    yield* logStream(iSb)
+    const iDSb = iZSetDelayOp<K, D1, W>(ring)(iSb)
+    yield* logStream(iDSb)
 
-  return add(ring)(jiDSbSa)(jiSaSb)
-}
+    const jiSaSb = join<K, D0, D1, D2, W>(ring)(fn)(Sb)(iSa)
+    yield* logStream(jiSaSb)
+    const jiDSbSa = join<K, D0, D1, D2, W>(ring)(fn)(iDSb)(Sa)
+    yield* logStream(jiDSbSa)
+    const result = add<K, D2, W>(ring)(jiDSbSa)(jiSaSb)
+    yield* logStream(result)
+    return result
+  })

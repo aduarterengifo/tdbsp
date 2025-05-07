@@ -1,11 +1,18 @@
 {
   "extends": "../../tsconfig.base.json",
-  "include": ["test"],
+  "include": [
+    "test",
+    "src/functions/streams/i-z-sets/utils.ts"
+  ],
   "references": [
-    { "path": "tsconfig.src.json" }
+    {
+      "path": "tsconfig.src.json"
+    }
   ],
   "compilerOptions": {
-    "types": ["node"],
+    "types": [
+      "node"
+    ],
     "tsBuildInfoFile": ".tsbuildinfo/test.tsbuildinfo",
     "rootDir": "test",
     "noEmit": true
