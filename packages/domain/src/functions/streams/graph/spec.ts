@@ -17,54 +17,58 @@ import { BaseB, BaseBMap } from "../../../data/b.js"
 //   children: Schema.Any // another node
 // })
 
+// A philosophical question of representation, is Din = Din or Dout = Dout
+
 // nodes should keep as little info as possible
-type NodeAlt<K, Dout, W> = Data.TaggedEnum<{
+type NodeAlt<K0, D0,D1, W> = Data.TaggedEnum<{
     Stream: {
-    readonly stream: Stream.Stream<IZSet<K, Dout, W>>
+    readonly stream: Stream.Stream<IZSet<K0, D1, W>>
     readonly children: []
     },
     End: {
-    readonly children: Array<NodeAlt<K, Dout, W>>
+    readonly children: Array<NodeAlt<K0, any, D0, W>>
     },
     Distinct: {
-        children: NodeAlt<K, Dout, W>[],
-        readonly fn: (b: Dout) => Dout
+        children: NodeAlt<K0, any, D0, W>[],
+        readonly fn: (b: D0) => D0
     },
     DeIndex: {
-    readonly children: [NodeAlt<K, Dout, W>]
+    readonly children: [NodeAlt<K0, any, D0, W>]
     },
     Index: {
-    readonly children: [NodeAlt<K, Dout, W>]
-    readonly fn: (d: Dout) => K // Dout = Din in this case.
+    readonly children: [NodeAlt<K0, any, D0, W>]
+    readonly fn: (d: D0) => K0 // Dout = Din in this case.
     },
     Filter: {
-    readonly children: [NodeAlt<K, Dout, W>]
-    readonly fn: (w: W, d: Dout) => boolean
+    readonly children: [NodeAlt<K0, any, D0, W>]
+    readonly fn: (w: W, d: D1) => boolean
     },
     Map: {
-    readonly children: [NodeAlt<K, Dout, W>] // single element
-    readonly fn: (d: Din) => Dout
+    // biome-ignore lint/suspicious/noExplicitAny: cause its fine
+    readonly children: [NodeAlt<K0, any, D0, W>] // single element
+    readonly fn: (d: D0) => D1
     },
     // binary
+    // I take in nodes in that output Din,
     Add: {
-    readonly children: [NodeAlt<K, Dout, W>, NodeAlt<K, Dout, W>]
+    readonly children: [NodeAlt<K0, any, D0, W>, NodeAlt<K0, any,D0, W>]
     },
-    Join: {
-    readonly children: [NodeAlt<K, Dout, W>, NodeAlt<K, Dout, W>]
-    readonly fn: (a: DinA, b: DinB) => Dout
+    Join: { // secondary Din fuck!
+    readonly children: [NodeAlt<K0, any, D0, W>, NodeAlt<K0, any, D0, W>]
+    readonly fn: (a: DinA, b: DinB) => D1
     },
     Mul: {
-    readonly children: [NodeAlt<K, Dout, W>, NodeAlt<K, Dout, W>]
+    readonly children: [NodeAlt<K0, any, D0, W>, NodeAlt<K0, any, D0, W>]
     },
     Sub: {
-    readonly children: [NodeAlt<K, Dout, W>, NodeAlt<K, Dout, W>]
+    readonly children: [NodeAlt<K0, any,D0, W>, NodeAlt<K0, any,D0, W>]
     },
     Union: {
-    readonly children: [NodeAlt<K, Dout, W>, NodeAlt<K, Dout, W>]
+    readonly children: [NodeAlt<K0, any, D0, W>, NodeAlt<K0, any, D0, W>]
     }
 }>
 
-const taggedEnum = <K,Dout,W>() => Data.taggedEnum<NodeAlt<K,Dout,W>>()
+const taggedEnum = <K,Din,Dout,W>() => Data.taggedEnum<NodeAlt<K,Din,Dout,W>>()
 
 // const distinctMake = <K,Dout,W>() => taggedEnum().Distinct
 
@@ -201,6 +205,19 @@ export const computationGraphTest = <K, D0 extends BaseA,D1 extends BaseB, W>(ri
   Sa: Stream.Stream<IZSet<K, D0, W>>,
   Sb: Stream.Stream<IZSet<K, D1, W>>
 ) => { 
+
+    const sub1 = taggedEnum<K,D1,D1,W>().Stream({
+        stream: Sb,
+        children: []
+    })
+
+    const sub  =  taggedEnum<K,D1,D1,W>().Filter({
+        fn: (_, { s }) => s > 5,
+        children: [
+            sub1
+        ]
+    })
+
     return ({
   _tag: "end",
   children: [{
@@ -242,35 +259,33 @@ export const computationGraphTest = <K, D0 extends BaseA,D1 extends BaseB, W>(ri
               }
             ]
           },
-          {
-            _tag: "index",
-            fn: () => {},
+          taggedEnum<number,BaseBMap,BaseBMap,W>().Index({
+            fn: ({ id }) => id,
             children: [
-              {
-                _tag: "deindex",
-                children: [
-                    taggedEnum<K,BaseBMap,W>().Map({
-                        fn: ({ id, y }) =>
-                        Data.struct({
-                        y,
-                        id
-                        }),
-                        children: [                        
-                            taggedEnum<K,D1,W>().Filter({
-                                fn: (_, { s }) => s > 5,
-                                children: [
-                                    taggedEnum<K,D1,W>().Stream({
-                                        stream: Sb,
-                                        children: []
-                                    })
-                                ]
-                            })
-                        ]
-                    })
-                ]
-              }
+                taggedEnum<K,BaseBMap,BaseBMap,W>().DeIndex({
+                    children: [
+                        taggedEnum<K,D1,BaseBMap,W>().Map({
+                            fn: ({ id, y }) =>
+                            Data.struct({
+                            y,
+                            id
+                            }),
+                            children: [                        
+                                taggedEnum<K,D1,D1,W>().Filter({
+                                    fn: (_, { s }) => s > 5,
+                                    children: [
+                                        taggedEnum<K,D1,D1,W>().Stream({
+                                            stream: Sb,
+                                            children: []
+                                        })
+                                    ]
+                                })
+                            ]
+                        })
+                    ]
+                })
             ]
-          },
+          })
         ]
       }]
     }]
