@@ -1,6 +1,9 @@
-import type { Schema } from "effect"
+import { Data, type Schema, type Stream } from "effect"
 import type { NonEmptyArray } from "effect/Array"
 import type { IZSet } from "../../../objs/i-z-set.js"
+import { Ring } from "../../../objs/ring.js"
+import { BaseA, BaseAMap } from "../../../data/a.js"
+import { BaseB, BaseBMap } from "../../../data/b.js"
 
 // for now these ONLY operate on z-sets.
 
@@ -15,6 +18,61 @@ import type { IZSet } from "../../../objs/i-z-set.js"
 // })
 
 // nodes should keep as little info as possible
+type NodeAlt<K, Dout, W> = Data.TaggedEnum<{
+    Stream: {
+    readonly stream: Stream.Stream<IZSet<K, Dout, W>>
+    readonly children: []
+    },
+    End: {
+    readonly children: Array<NodeAlt<K, Dout, W>>
+    },
+    Distinct: {
+        children: NodeAlt<K, Dout, W>[],
+        readonly fn: (b: Dout) => Dout
+    },
+    DeIndex: {
+    readonly children: [NodeAlt<K, Dout, W>]
+    },
+    Index: {
+    readonly children: [NodeAlt<K, Dout, W>]
+    readonly fn: (d: Dout) => K // Dout = Din in this case.
+    },
+    Filter: {
+    readonly children: [NodeAlt<K, Dout, W>]
+    readonly fn: (w: W, d: Dout) => boolean
+    },
+    Map: {
+    readonly children: [NodeAlt<K, Dout, W>] // single element
+    readonly fn: (d: Din) => Dout
+    },
+    // binary
+    Add: {
+    readonly children: [NodeAlt<K, Dout, W>, NodeAlt<K, Dout, W>]
+    },
+    Join: {
+    readonly children: [NodeAlt<K, Dout, W>, NodeAlt<K, Dout, W>]
+    readonly fn: (a: DinA, b: DinB) => Dout
+    },
+    Mul: {
+    readonly children: [NodeAlt<K, Dout, W>, NodeAlt<K, Dout, W>]
+    },
+    Sub: {
+    readonly children: [NodeAlt<K, Dout, W>, NodeAlt<K, Dout, W>]
+    },
+    Union: {
+    readonly children: [NodeAlt<K, Dout, W>, NodeAlt<K, Dout, W>]
+    }
+}>
+
+const taggedEnum = <K,Dout,W>() => Data.taggedEnum<NodeAlt<K,Dout,W>>()
+
+// const distinctMake = <K,Dout,W>() => taggedEnum().Distinct
+
+// const specificMake = distinctMake<number,number,number>() 
+
+// const instance = specificMake({children: [], fn: () => '33'})
+
+
 export type Node<K, Dout, W> =
   | NodeDistinctOp<K, Dout, W>
   | NodeStream<K, Dout, W>
@@ -34,7 +92,7 @@ export type NodeTag = Node<any, any, any>["_tag"]
 export type NodeStream<K, Dout, W> = {
   readonly _tag: "stream"
   readonly stream: Schema.Schema<IZSet<K, Dout, W>>
-  readonly children: Array<Node<K, Dout, W>>
+  readonly children: []
 }
 
 export type NodeEnd<K, Dout, W> = {
@@ -44,34 +102,35 @@ export type NodeEnd<K, Dout, W> = {
 
 export type NodeDistinctOp<K, Dout, W> = {
   readonly _tag: "distinct"
-  readonly children: Array<Node<K, Dout, W>>
+  readonly children: [Node<K, Dout, W>]
 }
 
 export type NodeAddOp<K, Dout, W> = {
   readonly _tag: "add"
-  readonly children: Array<Node<K, Dout, W>>
+  readonly children: [Node<K, Dout, W>, Node<K, Dout, W>]
 }
 
 export type NodeDeIndexOp<Kin, Dout, W> = {
   readonly _tag: "deindex"
-  readonly children: Array<Node<Kin, Dout, W>>
+  readonly children: [Node<Kin, Dout, W>]
 }
 
 // in this case Dout = Din
 export type NodeFilterOp<K, Dout, W> = {
   readonly _tag: "filter"
-  readonly children: Array<Node<K, Dout, W>>
+  readonly children: [Node<K, Dout, W>]
   readonly fn: (w: W, d: Dout) => boolean
 }
 
 export type NodeIndexOp<K, Dout, W> = {
   readonly _tag: "index"
-  readonly children: Array<Node<K, Dout, W>>
+  readonly children: [Node<K, Dout, W>]
+  readonly fn: (d: Dout) => K // Dout = Din in this case.
 }
 
 export type NodeJoinOp<K, DinA, DinB, Dout, W> = {
   readonly _tag: "join"
-  readonly children: Array<Node<K, Dout, W>>
+  readonly children: [Node<K, Dout, W>, Node<K, Dout, W>]
   readonly fn: (a: DinA, b: DinB) => Dout
 }
 
@@ -86,17 +145,17 @@ export type NodeMapOp<K, Din, Dout, W> = {
 
 export type NodeMulOp<K, Dout, W> = {
   readonly _tag: "mul"
-  readonly children: Array<Node<K, Dout, W>>
+  readonly children: [Node<K, Dout, W>, Node<K, Dout, W>]
 }
 
 export type NodeSubOp<K, Dout, W> = {
-  readonly _tag: "mul"
-  readonly children: Array<Node<K, Dout, W>>
+  readonly _tag: "sub"
+  readonly children: [Node<K, Dout, W>, Node<K, Dout, W>]
 }
 
 export type NodeUnionOp<K, Dout, W> = {
   readonly _tag: "mul"
-  readonly children: Array<Node<K, Dout, W>>
+  readonly children: [Node<K, Dout, W>, Node<K, Dout, W>]
 }
 
 export const recursiveTower = <K, D, W>(
@@ -135,7 +194,14 @@ export const recursiveTowerNodes = <K, Dout, W>(
   return root
 }
 
-export const computationGraphTest = () => ({
+// the fucked thing 
+
+export const computationGraphTest = <K, D0 extends BaseA,D1 extends BaseB, W>(ring: Ring<W>) =>
+(
+  Sa: Stream.Stream<IZSet<K, D0, W>>,
+  Sb: Stream.Stream<IZSet<K, D1, W>>
+) => { 
+    return ({
   _tag: "end",
   children: [{
     _tag: "distinct",
@@ -146,22 +212,67 @@ export const computationGraphTest = () => ({
         children: [
           {
             _tag: "index",
+            fn: ({ id }) => id,
             children: [
               {
                 _tag: "deindex",
-                children: [{
-                  _tag: "map",
-                  children: []
-                }]
+                children: [
+                  {
+                    _tag: "map",
+                    fn: ({ id, x }) =>
+        Data.struct({
+          x,
+          id
+        }),
+                    children: [
+                      {
+                        _tag: "filter",
+                        fn: (_, { a }) => a > 2,
+                        children: [
+                          {
+                            _tag: "stream",
+                            stream: Sa
+                            children: []
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
               }
             ]
           },
           {
             _tag: "index",
-            children: []
-          }
+            fn: () => {},
+            children: [
+              {
+                _tag: "deindex",
+                children: [
+                    taggedEnum<K,BaseBMap,W>().Map({
+                        fn: ({ id, y }) =>
+                        Data.struct({
+                        y,
+                        id
+                        }),
+                        children: [                        
+                            taggedEnum<K,D1,W>().Filter({
+                                fn: (_, { s }) => s > 5,
+                                children: [
+                                    taggedEnum<K,D1,W>().Stream({
+                                        stream: Sb,
+                                        children: []
+                                    })
+                                ]
+                            })
+                        ]
+                    })
+                ]
+              }
+            ]
+          },
         ]
       }]
     }]
   }]
-})
+})}
