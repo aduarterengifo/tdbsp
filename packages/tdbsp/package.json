@@ -1,0 +1,50 @@
+{
+  "name": "@a33/tdbsp",
+  "version": "0.0.0",
+  "type": "module",
+  "license": "NONE",
+  "description": "A typescript implementation of the DBSP language",
+  "repository": {
+    "type": "git",
+    "url": "<PLACEHOLDER>",
+    "directory": "packages/tdbsp"
+  },
+  "publishConfig": {
+    "access": "public",
+    "directory": "dist"
+  },
+  "exports": {
+    "./*": "./src/*"
+  },
+  "scripts": {
+    "codegen": "build-utils prepare-v2",
+    "build": "pnpm build-esm && pnpm build-annotate",
+    "build-esm": "tsc -b tsconfig.build.json",
+    "build-cjs": "babel build/esm --plugins @babel/transform-export-namespace-from --plugins @babel/transform-modules-commonjs --out-dir build/cjs --source-maps",
+    "build-annotate": "babel build/esm --plugins annotate-pure-calls --out-dir build/esm --source-maps",
+    "check": "tsc -b tsconfig.json",
+    "test": "vitest",
+    "coverage": "vitest --coverage"
+  },
+  "dependencies": {
+    "@effect/platform": "latest",
+    "@effect/sql": "latest",
+    "effect": "latest"
+  },
+  "effect": {
+    "generateExports": {
+      "include": [
+        "**/*.ts"
+      ]
+    },
+    "generateIndex": {
+      "include": [
+        "**/*.ts"
+      ]
+    }
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.0.0-beta.2",
+    "@vitest/coverage-v8": "^3.1.3"
+  }
+}

@@ -40,9 +40,9 @@
       "@template/cli": ["./packages/cli/src/index.js"],
       "@template/cli/*": ["./packages/cli/src/*.js"],
       "@template/cli/test/*": ["./packages/cli/test/*.js"],
-      "@template/domain": ["./packages/domain/src/index.js"],
-      "@template/domain/*": ["./packages/domain/src/*.js"],
-      "@template/domain/test/*": ["./packages/domain/test/*.js"],
+      "@a33/tdbsp": ["./packages/tdbsp/src/index.js"],
+      "@a33/tdbsp/*": ["./packages/tdbsp/src/*.js"],
+      "@a33/tdbsp/test/*": ["./packages/tdbsp/test/*.js"],
       "@template/server": ["./packages/server/src/index.js"],
       "@template/server/*": ["./packages/server/src/*.js"],
       "@template/server/test/*": ["./packages/server/test/*.js"]

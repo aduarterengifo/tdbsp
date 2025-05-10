@@ -28,7 +28,8 @@ const config: UserConfig = {
     include: ["test/**/*.test.ts"],
     alias: {
       ...alias("cli"),
-      ...alias("domain"),
+      ...alias("tdbsp"),
+      ...alias("ui"),
       ...alias("server")
     }
   }

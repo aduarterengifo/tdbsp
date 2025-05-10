@@ -1,4 +1,4 @@
-import { Todo, TodoId, TodoNotFound } from "@template/domain/TodosApi"
+import { Todo, TodoId, TodoNotFound } from "@a33/tdbsp/TodosApi"
 import { Effect, HashMap, Ref } from "effect"
 
 export class TodosRepository extends Effect.Service<TodosRepository>()("api/TodosRepository", {
