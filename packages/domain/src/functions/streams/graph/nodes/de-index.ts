@@ -2,7 +2,7 @@ import { Data } from "effect"
 import type { Node } from "./unions/node.js"
 
 export type DeIndexNode<K, D, W> = {
-  readonly _tag: "DeIndex"
+  readonly _tag: "DeIndexNode"
   readonly children: [Node<K, D, W>] // takes nodes whose output is D.
 }
 

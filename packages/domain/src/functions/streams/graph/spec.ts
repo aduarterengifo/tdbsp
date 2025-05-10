@@ -1,8 +1,12 @@
-import { Data, type Stream } from "effect"
+import { Data, HashMap as HM, pipe, Stream } from "effect"
 import type { BaseA, BaseAMap } from "../../../data/a.js"
 import type { BaseB, BaseBMap } from "../../../data/b.js"
 import type { BaseJoined } from "../../../data/c.js"
+import type { IZSet } from "../../../objs/i-z-set.js"
 import type { Ring } from "../../../objs/ring.js"
+import { Z } from "../../../objs/z.js"
+import { make } from "../../i-z-set/make.js"
+import { exec } from "./exec.js"
 import { deIndexNodeMake } from "./nodes/de-index.js"
 import { endNodeMake } from "./nodes/end.js"
 import { filterNodeMake } from "./nodes/filter.js"
@@ -11,6 +15,7 @@ import { joinNodeMake } from "./nodes/join.js"
 import { mapNodeMake } from "./nodes/map.js"
 import { streamNodeMake } from "./nodes/stream.js"
 
+// I have my abstract syntax tree and from it I want to in the end get a stream.
 export const computationGraphTest = <K0, D0 extends BaseA, D1 extends BaseB, W>(ring: Ring<W>) =>
 (
   Sa: Stream.Stream<IZSet<K0, D0, W>>,
@@ -28,7 +33,7 @@ export const computationGraphTest = <K0, D0 extends BaseA, D1 extends BaseB, W>(
             fn: ({ id }) => id,
             children: [
               deIndexNodeMake<K0, BaseAMap, W>()({
-                _tag: "DeIndex",
+                _tag: "DeIndexNode",
                 children: [
                   mapNodeMake<K0, D0, BaseAMap, W>()({
                     _tag: "MapNode",
@@ -60,7 +65,7 @@ export const computationGraphTest = <K0, D0 extends BaseA, D1 extends BaseB, W>(
             fn: ({ id }) => id,
             children: [
               deIndexNodeMake<K0, BaseBMap, W>()({
-                _tag: "DeIndex",
+                _tag: "DeIndexNode",
                 children: [
                   mapNodeMake<K0, D1, BaseBMap, W>()({
                     _tag: "MapNode",
@@ -91,3 +96,81 @@ export const computationGraphTest = <K0, D0 extends BaseA, D1 extends BaseB, W>(
       })
     ]
   })
+
+const a = make<number, BaseA, number>(HM.fromIterable([
+  [
+    0,
+    HM.fromIterable([[
+      Data.struct({
+        a: 1,
+        x: 2,
+        id: 5
+      }),
+      1
+    ], [
+      Data.struct({
+        a: 3,
+        x: 2,
+        id: 4
+      }),
+      1
+    ]])
+  ]
+]))
+const b = make<number, BaseA, number>(HM.fromIterable([
+  [
+    0,
+    HM.fromIterable([[
+      Data.struct({
+        a: 4,
+        x: 1,
+        id: 6
+      }),
+      1
+    ]])
+  ]
+]))
+
+const Sa = Stream.make(a, b)
+
+const c = make<number, BaseB, number>(HM.fromIterable([
+  [
+    0,
+    HM.fromIterable([[
+      Data.struct({
+        s: 4,
+        y: 2,
+        id: 1
+      }),
+      1
+    ], [
+      Data.struct({
+        s: 6,
+        y: 3,
+        id: 4
+      }),
+      1
+    ]])
+  ]
+]))
+
+const d = make<number, BaseB, number>(HM.fromIterable([
+  [
+    0,
+    HM.fromIterable([[
+      Data.struct({
+        s: 8,
+        y: 5,
+        id: 6
+      }),
+      1
+    ]])
+  ]
+]))
+
+const Sb = Stream.make(c, d)
+
+const res = pipe(
+  computationGraphTest(Z)(Sa, Sb),
+  exec(Z)
+)

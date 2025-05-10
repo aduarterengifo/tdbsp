@@ -1,8 +1,9 @@
 import { HashMap as HM, pipe } from "effect"
+import type { IZSet, ZSet } from "../../../objs/i-z-set.js"
 import { getOrEmpty } from "../../hashmap/unary/get-or-empty.js"
 import { mapInternal } from "../abstractions/map-internal.js"
 
-export const flatten = <K, D0, D1, W>(fn: (k: K, d: D0) => D1) =>
+export const flatten = <K, D0, D1, W>(fn: (k: K, d: D0) => D1): (iZSet: IZSet<K, D0, W>) => ZSet<D1, W> =>
   pipe(
     HM.reduce<HM.HashMap<0, HM.HashMap<D1, W>>, HM.HashMap<D0, W>, K>(
       HM.empty<0, HM.HashMap<D1, W>>(),
