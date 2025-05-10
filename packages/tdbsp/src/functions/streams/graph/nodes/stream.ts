@@ -1,5 +1,5 @@
 import { Data, type Stream } from "effect"
-import type { IZSet } from "../../../../objs/i-z-set.js"
+import type { IZSet } from "../../../../objs/i_z_set.js"
 
 export type StreamNode<K, D, W> = {
   readonly _tag: "StreamNode"

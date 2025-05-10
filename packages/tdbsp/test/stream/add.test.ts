@@ -1,8 +1,8 @@
 import { describe, expect, it } from "@effect/vitest"
 import { Effect, HashMap as HM, Stream } from "effect"
-import { make } from "../../src/functions/i-z-set/make.js"
+import { make } from "../../src/functions/i_z_set/make.js"
 import { equals } from "../../src/functions/streams/equals.js"
-import { add } from "../../src/functions/streams/lifted-add.js"
+import { add } from "../../src/functions/streams/lifted_add.js"
 import { Z } from "../../src/objs/z.js"
 
 describe("stream lifted add", () => {

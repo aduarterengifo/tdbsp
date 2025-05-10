@@ -1,6 +1,6 @@
 import { Option, Stream } from "effect"
 import { zipWithPrevious } from "effect/Stream"
-import type { AbelianGroup } from "../../../objs/abelian-group.js"
+import type { AbelianGroup } from "../../../objs/abelian_group.js"
 
 /**
  * Produces an output stream by delaying its input stream by one step.

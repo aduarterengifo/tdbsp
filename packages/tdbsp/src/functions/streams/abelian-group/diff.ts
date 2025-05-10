@@ -1,6 +1,6 @@
 import type { Stream } from "effect"
-import type { AbelianGroup } from "../../../objs/abelian-group.js"
-import { binaryLift } from "../../i-z-set/lift.js"
+import type { AbelianGroup } from "../../../objs/abelian_group.js"
+import { binaryLift } from "../../i_z_set/lift.js"
 import { aGDelayOp } from "./delay.js"
 
 // TODO: investigate definition using unfold.

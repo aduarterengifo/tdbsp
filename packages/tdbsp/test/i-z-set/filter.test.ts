@@ -1,8 +1,8 @@
-import { describe, expect, it } from "@effect/vitest"
+import { expect, it } from "@effect/vitest"
 import { HashMap as HM } from "effect"
-import { equals } from "../../src/functions/i-z-set/binary/predicates/equals.js"
-import { make } from "../../src/functions/i-z-set/make.js"
-import { filter } from "../../src/functions/i-z-set/unary/filter.js"
+import { equals } from "../../src/functions/i_z_set/binary/predicates/equals.js"
+import { make } from "../../src/functions/i_z_set/make.js"
+import { filter } from "../../src/functions/i_z_set/unary/filter.js"
 import { Z } from "../../src/objs/z.js"
 
 it("filter", () => {

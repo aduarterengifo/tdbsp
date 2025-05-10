@@ -1,5 +1,5 @@
 import type { AddNode } from "../add.js"
-import type { DeIndexNode } from "../de-index.js"
+import type { DeIndexNode } from "../de_index.js"
 import type { DistinctNode } from "../distinct.js"
 import type { EndNode } from "../end.js"
 import type { FilterNode } from "../filter.js"

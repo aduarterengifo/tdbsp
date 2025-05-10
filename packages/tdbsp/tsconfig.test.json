@@ -2,7 +2,7 @@
   "extends": "../../tsconfig.base.json",
   "include": [
     "test",
-    "src/functions/streams/i-z-sets/utils.ts"
+    "src/functions/streams/i_z_sets/utils.ts"
   ],
   "references": [
     {

@@ -1,5 +1,5 @@
 import { Stream } from "effect"
-import type { AbelianGroup } from "../../../objs/abelian-group.js"
+import type { AbelianGroup } from "../../../objs/abelian_group.js"
 
 // TODO: investigate definition using unfold.
 /**

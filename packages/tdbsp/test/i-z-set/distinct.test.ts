@@ -1,8 +1,8 @@
 import { describe, expect, it } from "@effect/vitest"
 import { Data, HashMap } from "effect"
-import { equals } from "../../src/functions/i-z-set/binary/predicates/equals.js"
-import { make } from "../../src/functions/i-z-set/make.js"
-import { distinct } from "../../src/functions/i-z-set/unary/distinct.js"
+import { equals } from "../../src/functions/i_z_set/binary/predicates/equals.js"
+import { make } from "../../src/functions/i_z_set/make.js"
+import { distinct } from "../../src/functions/i_z_set/unary/distinct.js"
 import { Z } from "../../src/objs/z.js"
 
 describe("iZset", () => {

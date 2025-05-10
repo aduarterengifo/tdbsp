@@ -1,8 +1,8 @@
 import { describe, expect, it } from "@effect/vitest"
-import { Chunk, Effect, HashMap as HM, Stream } from "effect"
-import { make } from "../../src/functions/i-z-set/make.js"
+import { Effect, HashMap as HM, Stream } from "effect"
+import { make } from "../../src/functions/i_z_set/make.js"
 import { equals } from "../../src/functions/streams/equals.js"
-import { join } from "../../src/functions/streams/lifted-join.js"
+import { join } from "../../src/functions/streams/lifted_join.js"
 import { Z } from "../../src/objs/z.js"
 
 describe("stream lifted join", () => {
