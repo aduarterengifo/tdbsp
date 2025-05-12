@@ -1,21 +1,19 @@
 import type { Stream } from "effect"
 import { Data } from "effect"
-import type { BaseA, BaseAMap } from "../../../data/a.js"
-import type { BaseB, BaseBMap } from "../../../data/b.js"
-import type { BaseJoined } from "../../../data/c.js"
-import type { IZSet } from "../../../objs/i_z_set.js"
-import type { Ring } from "../../../objs/ring.js"
-import { deIndexNodeMake } from "./nodes/de_index.js"
-import { endNodeMake } from "./nodes/end.js"
-import { filterNodeMake } from "./nodes/filter.js"
-import { indexNodeMake } from "./nodes/index.js"
-import { joinNodeMake } from "./nodes/join.js"
-import { mapNodeMake } from "./nodes/map.js"
-import { streamNodeMake } from "./nodes/stream.js"
+import type { BaseA, BaseAMap } from "../../../../data/a.js"
+import type { BaseB, BaseBMap } from "../../../../data/b.js"
+import type { BaseJoined } from "../../../../data/c.js"
+import type { IZSet } from "../../../../objs/i_z_set.js"
+import { deIndexNodeMake } from "../nodes/de_index.js"
+import { endNodeMake } from "../nodes/end.js"
+import { filterNodeMake } from "../nodes/filter.js"
+import { indexNodeMake } from "../nodes/index.js"
+import { joinNodeMake } from "../nodes/join.js"
+import { mapNodeMake } from "../nodes/map.js"
+import { streamNodeMake } from "../nodes/stream.js"
 
 // I have my abstract syntax tree and from it I want to in the end get a stream.
-export const computationGraphTest = <K0, D0 extends BaseA, D1 extends BaseB, W>(ring: Ring<W>) =>
-(
+export const egIncrementalTree = <K0, D0 extends BaseA, D1 extends BaseB, W>(
   Sa: Stream.Stream<IZSet<K0, D0, W>>,
   Sb: Stream.Stream<IZSet<K0, D1, W>>
 ) =>

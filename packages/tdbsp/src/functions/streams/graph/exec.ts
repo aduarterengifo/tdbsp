@@ -1,7 +1,9 @@
 import type { Stream } from "effect"
-import { Match } from "effect"
+import { Effect, Match } from "effect"
 import type { IZSet, ZSet } from "../../../objs/i_z_set.js"
 import type { Ring } from "../../../objs/ring.js"
+import { deltaDistinct } from "../i_z_sets/delta/distinct.js"
+import { deltaJoin } from "../i_z_sets/delta/join.js"
 import { add } from "../lifted_add.js"
 import { deindex } from "../lifted_de_index.js"
 import { distinct } from "../lifted_distinct.js"
@@ -13,6 +15,8 @@ import { mul } from "../lifted_multiply.js"
 import { sub } from "../lifted_sub.js"
 import { liftedUnion } from "../union.js"
 import type { Node } from "./nodes/unions/node.js"
+
+// TODO: in addition to execution we need optimization AND incrementallization.
 
 /**
  * executes the computation graph.
@@ -69,6 +73,17 @@ export const exec = <K, D, W>(ring: Ring<W>) => (node: Node<K, D, W>): Stream.St
       const [a] = children.map(exec<K, D, W>(ring))
       // biome-ignore lint/suspicious/noExplicitAny: PROBLEMS
       return map<K, any, D, W>(fn)(a)
+    }),
+    // deltas
+    Match.tag("DeltaDistinctNode", ({ children }) => {
+      const [a] = children.map(exec<K, D, W>(ring))
+      // biome-ignore lint/suspicious/noExplicitAny: PROBLEMS
+      return deltaDistinct<K, D, W>(ring)(a)
+    }),
+    Match.tag("DeltaJoinNode", ({ children, fn }) => {
+      const [a, b] = children.map(exec<K, D, W>(ring))
+      // biome-ignore lint/suspicious/noExplicitAny: PROBLEMS
+      return Effect.runSync(deltaJoin<K, any, D, D, W>(ring)(fn)(a)(b))
     }),
     Match.exhaustive
   )

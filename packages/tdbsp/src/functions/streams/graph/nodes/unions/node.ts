@@ -1,5 +1,7 @@
 import type { AddNode } from "../add.js"
 import type { DeIndexNode } from "../de_index.js"
+import type { DeltaDistinctNode } from "../delta-distinct.js"
+import type { DeltaJoinNode } from "../delta-join.js"
 import type { DistinctNode } from "../distinct.js"
 import type { EndNode } from "../end.js"
 import type { FilterNode } from "../filter.js"
@@ -24,3 +26,5 @@ export type Node<K, D, W> =
   | MulNode<K, D, W>
   | SubNode<K, D, W>
   | UnionNode<K, D, W>
+  | DeltaDistinctNode<K, D, W>
+  | DeltaJoinNode<K, any, any, D, W>
