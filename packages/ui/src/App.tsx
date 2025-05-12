@@ -2,10 +2,12 @@ import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
+import { floppy } from '@a33/tdbsp/src/floppy'
+
 
 function App() {
   const [count, setCount] = useState(0)
-
+  console.log('floppy', floppy)
   return (
     <>
       <div>

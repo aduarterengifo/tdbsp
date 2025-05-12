@@ -4,36 +4,11 @@
   "type": "module",
   "license": "NONE",
   "description": "A typescript implementation of the DBSP language",
-  "publishConfig": {
-    "access": "public",
-    "directory": "dist"
-  },
   "repository": {
     "type": "git",
     "url": "<PLACEHOLDER>",
     "directory": "packages/server"
   },
-  "exports": {
-    "./data/*": {
-      "import": "./build/esm/data/*.js",
-      "types": "./build/dts/data/*.d.ts"
-    },
-    "./examples/*": {
-      "import": "./build/esm/examples/*.js",
-      "types": "./build/dts/examples/*.d.ts"
-    },
-    "./functions/*": {
-      "import": "./build/esm/functions/*.js",
-      "types": "./build/dts/functions/*.d.ts"
-    },
-    "./objs/*": {
-      "import": "./build/esm/objs/*.js",
-      "types": "./build/dts/objs/*.d.ts"
-    }
-  },
-  "files": [
-    "build"
-  ],
   "scripts": {
     "codegen": "build-utils prepare-v2",
     "build": "pnpm build-esm && pnpm build-annotate",

@@ -4,5 +4,19 @@
   "references": [
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" },
-  ]
+    {
+      "path": "../tdbsp"
+    }
+  ],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@a33/tdbsp": [
+        "../tdbsp/src/index.ts"
+      ],
+      "@a33/tdbsp/*": [
+        "../tdbsp/src/*"
+      ]
+    }
+  }
 }
