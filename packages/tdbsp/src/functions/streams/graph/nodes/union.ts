@@ -3,7 +3,7 @@ import type { Node } from "./unions/node.js"
 
 export type UnionNode<K, D, W> = {
   readonly _tag: "UnionNode"
-  readonly children: [Node<K, D, W>, Node<K, D, W>] // takes nodes whose key is in K0.
+  children: [Node<K, D, W>, Node<K, D, W>] // takes nodes whose key is in K0.
 }
 
 export const unionNodeMake = <K, D, W>() => Data.case<UnionNode<K, D, W>>()

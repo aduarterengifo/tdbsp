@@ -3,7 +3,7 @@ import { make } from "../../functions/i_z_set/make.js"
 import type { BaseA } from "../a.js"
 import type { BaseB } from "../b.js"
 
-const a = make<number, BaseA, number>(HM.fromIterable([
+export const Sa1 = make<number, BaseA, number>(HM.fromIterable([
   [
     0,
     HM.fromIterable([[
@@ -37,9 +37,9 @@ const b = make<number, BaseA, number>(HM.fromIterable([
   ]
 ]))
 
-export const Sa = Stream.make(a, b)
+export const Sa = Stream.make(Sa1, b)
 
-const c = make<number, BaseB, number>(HM.fromIterable([
+export const Sb1 = make<number, BaseB, number>(HM.fromIterable([
   [
     0,
     HM.fromIterable([[
@@ -74,4 +74,4 @@ const d = make<number, BaseB, number>(HM.fromIterable([
   ]
 ]))
 
-export const Sb = Stream.make(c, d)
+export const Sb = Stream.make(Sb1, d)

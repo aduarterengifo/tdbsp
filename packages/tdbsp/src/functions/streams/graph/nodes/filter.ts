@@ -3,7 +3,7 @@ import type { Node } from "./unions/node.js"
 
 export type FilterNode<K, D, W> = {
   readonly _tag: "FilterNode"
-  readonly children: [Node<K, D, W>] // takes nodes whose key is in K0.
+  children: [Node<K, D, W>] // takes nodes whose key is in K0.
   readonly fn: (w: W, d: D) => boolean
 }
 

@@ -4,15 +4,18 @@ import type { IZSet } from "@a33/tdbsp/src/objs/i_z_set"
 import type {BaseA} from "@a33/tdbsp/src/data/a"
 import type {BaseB} from "@a33/tdbsp/src/data/b"
 import type { BaseJoined } from "@a33/tdbsp/src/data/c"
-import  { Sa, Sb } from "@a33/tdbsp/src/data/streams/input"
+import  { Sa, Sa1, Sb, Sb1 } from "@a33/tdbsp/src/data/streams/input"
 import {egStaticTree} from "@a33/tdbsp/src/functions/streams/graph/examples/static_tree"
 import {exec} from "@a33/tdbsp/src/functions/streams/graph/exec"
+
+import {randomGen} from "@a33/tdbsp/src/functions/i_z_set/random_gen"
+
 import {Z} from "@a33/tdbsp/src/objs/z"
 
 import { Ctx } from "./ctx";
 
 export function CtxProvider({ children }: PropsWithChildren) {
-	const [time, setTime] = useState(0);
+	const [time, setTime] = useState(1);
 
 	// these will always begin with something FOR SIMPLICITY!!! 
 	const [streamA, setStreamA] = useState<Stream.Stream<IZSet<number,BaseA,number>>>(Sa);
@@ -36,81 +39,49 @@ export function CtxProvider({ children }: PropsWithChildren) {
 
 	// }, [historyA, historyB])
 
-	const forward = () => {
-		console.log('running forward')
-		// if this index doesn't already exist in the input streams. 
-		// generate random z-set update on A and B 
-		// calculate downstream incremental and static results.
+    const forwardEffect = Effect.gen(function*() {
+        const sA = yield* Stream.runCollect(streamA)
+        const sB = yield* Stream.runCollect(streamB)
 
-		// 1. Figure out the index.
-		const collectedStreamA = Stream.runCollect(streamA)
+        const sASize = Chunk.size(sA)
+        
+        if (time + 1 >= sASize) {
+            console.log('inside condition')
+            const lastA = Option.getOrNull(Chunk.last(sA))!
 
-		const chunkStreamA = Effect.runSync(collectedStreamA)
+            const A = randomGen(Sa1)(lastA)
 
-		const chuckStreamALength = Chunk.size(chunkStreamA)
+            console.log('random gen',Array.from(A.newZSet.index),Array.from(A.changeInstance.index))
 
-		const collectedStreamB = Stream.runCollect(streamB)
+            const newStreamA = Stream.concatAll(Chunk.make(streamA,Stream.make(A.newZSet)))
 
-		const chunkStreamB = Effect.runSync(collectedStreamB)
+			const newStreamAChanges = Stream.concatAll(Chunk.make(streamAChanges,Stream.make(A.changeInstance))) 
 
+            console.log('newStreamAChanges', newStreamAChanges)
+            const lastB = Option.getOrNull(Chunk.last(sB))!
 
-		if (time + 1 >= chuckStreamALength) {
+            const B = randomGen(Sb1)(lastB)
 
-			// A CHANGES
+            const newStreamB = Stream.concatAll(Chunk.make(streamB,Stream.make(B.newZSet)))
 
-			// biome-ignore lint/style/noNonNullAssertion: FOR SIMPLICITY
-			const lastZSet = Option.getOrNull(Chunk.last(chunkStreamA))!
+			const newStreamBChanges = Stream.concatAll(Chunk.make(streamBChanges,Stream.make(B.changeInstance))) 
 
-			const { newZSet, changeInstance } = getTheNext(lastZSet)
-			// const changeInstance = make<BaseA>(
-			// 	HashMap.fromIterable([[Data.struct({ x: 6, id: 11, a: 10 }), 1]]),
-			// )
-			// const newZSet = Stream.make(
-			// 	lastZSet,
-			// 	changeInstance,
-			// )
-			// append newZset to stream 
+            const newStreamStatic = pipe(
+                egStaticTree(newStreamA, newStreamB),
+                exec(Z)
+            )
 
-			const newStreamA = Stream.fromChunk(Chunk.append(Effect.runSync(Stream.runCollect(streamA)), newZSet))
-
-			// append change Instance to change stream.
-			const newStreamAChanges = Stream.fromChunk(Chunk.append(Effect.runSync(Stream.runCollect(streamAChanges)), changeInstance))
-
-
-			// B CHANGES
-
-			// biome-ignore lint/style/noNonNullAssertion: FOR SIMPLICITY
-			const lastZSetB = Option.getOrNull(Chunk.last(chunkStreamB))!
-
-
-			const B = getTheNext(lastZSetB)
-
-			// append newZset to stream 
-			const newStreamB = Stream.fromChunk(Chunk.append(Effect.runSync(Stream.runCollect(streamB)), B.newZSet))
-
-
-			const newStreamBChanges = Stream.fromChunk(Chunk.append(Effect.runSync(Stream.runCollect(streamBChanges)), B.changeInstance))
-			// append change Instance to change stream.
-
-			// STATIC RESULT CHANGES 
-
-			const newStreamStatic = exampleCircuitOneLiftedOptimized(newStreamA, newStreamB)
-
-
-			const newStreamIncremental = exampleCircuitOneIncrementalOptimizedTwo(newStreamAChanges, newStreamBChanges)
-			console.log('newStreamIncremental', Chunk.toReadonlyArray(
-				Effect.runSync(Stream.runCollect(newStreamIncremental)),
-			).map(x => Array.from(x.data)))
-			setStreamA(newStreamA)
+            setStreamA(newStreamA)
 			setStreamAChanges(newStreamAChanges)
 			setStreamB(newStreamB)
 			setStreamBChanges(newStreamBChanges)
 			setStreamStatic(newStreamStatic)
-			setStreamIncremental(newStreamIncremental)
+        }
+    })
 
-		}
-
-
+	const forward = () => {
+        console.log('forward one')
+        Effect.runSync(forwardEffect)
 		setTime((time) => {
 			return time + 1
 		})

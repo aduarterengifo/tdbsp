@@ -17,7 +17,7 @@ import { liftedUnion } from "../union.js"
 import type { Node } from "./nodes/unions/node.js"
 
 // TODO: in addition to execution we need optimization AND incrementallization.
-
+// note there is really no way to compute over z-sets, the paper describes computation over z-sets and the lifts it to streams as part of the algorithm.
 /**
  * executes the computation graph.
  */

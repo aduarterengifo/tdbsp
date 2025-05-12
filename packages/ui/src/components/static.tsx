@@ -18,7 +18,9 @@ export function Static() {
             <div className='font-semibold text-lg'>static</div>
             {/* <Stream data={historyA.map(x => [x, generateRandomString()])} element={(data, key) => <StreamElement data={data} key={key} />} />
             <Stream data={historyB.map(x => [x, generateRandomString()])} element={(data, key) => <StreamElement data={data} key={key} />} /> */}
+            <div>a</div>
             <IZSetStream data={historyA} />
+            <div>b</div>
             <IZSetStream data={historyB} />
             <pre className="text-xs">
                 {`

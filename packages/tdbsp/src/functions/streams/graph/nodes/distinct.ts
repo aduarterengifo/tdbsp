@@ -3,7 +3,7 @@ import type { Node } from "./unions/node.js"
 
 export type DistinctNode<K, D, W> = {
   readonly _tag: "DistinctNode"
-  readonly children: [Node<K, D, W>] // takes nodes whose output is D.
+  children: [Node<K, D, W>] // takes nodes whose output is D.
 }
 
 export const distinctNodeMake = <K, D, W>() => Data.case<DistinctNode<K, D, W>>()
