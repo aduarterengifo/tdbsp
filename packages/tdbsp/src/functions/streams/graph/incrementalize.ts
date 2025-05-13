@@ -1,7 +1,8 @@
 import { Match } from "effect"
 import type { Ring } from "../../../objs/ring.js"
+import { distinctNodeMake } from "./nodes/distinct.js"
 import type { Node } from "./nodes/unions/node.js"
-import { isProp45Q } from "./utils.js"
+import { isProp44Q, isProp45Q } from "./utils.js"
 
 /**
  * takes a tree description of some computation and returns its incremental equivalent.
@@ -38,6 +39,23 @@ export const simplProp45 = <K, D, W>(node: Node<K, D, W>): Node<K, D, W> => {
   )
   if (node.children) {
     node.children = node.children.map(simplProp45)
+  }
+  return node
+}
+
+// Q(distinct(i)) -> distinct(Q(i))
+export const simplProp44 = <K, D, W>(node: Node<K, D, W>): Node<K, D, W> => {
+  if (isProp44Q(node)) { // is the node Q
+    if (node.children.every((x) => x._tag === "DistinctNode")) { // are the args to Q distinct?
+      // Q(distinct(i)) precisely.
+      node.children = node.children.map((child) => child.children[0])
+      return distinctNodeMake<K, D, W>()({
+        children: [node]
+      })
+    }
+  }
+  if (node.children) {
+    node.children = node.children.map(simplProp44)
   }
   return node
 }
