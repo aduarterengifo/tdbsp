@@ -2,8 +2,6 @@
   "extends": "./tsconfig.base.json",
   "include": [],
   "references": [
-    { "path": "packages/cli/tsconfig.build.json" },
     { "path": "packages/tdbsp/tsconfig.build.json" },
-    { "path": "packages/server/tsconfig.build.json" }
   ]
 }
