@@ -7,4 +7,4 @@ export type FilterNode<K, D, W> = {
   readonly fn: (w: W, d: D) => boolean
 }
 
-export const filterNodeMake = <K, D, W>() => Data.case<FilterNode<K, D, W>>()
+export const filterNodeMake = <K, D, W>() => Data.tagged<FilterNode<K, D, W>>("FilterNode")

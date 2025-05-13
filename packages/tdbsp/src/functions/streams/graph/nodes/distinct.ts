@@ -6,4 +6,4 @@ export type DistinctNode<K, D, W> = {
   children: [Node<K, D, W>] // takes nodes whose output is D.
 }
 
-export const distinctNodeMake = <K, D, W>() => Data.case<DistinctNode<K, D, W>>()
+export const distinctNodeMake = <K, D, W>() => Data.tagged<DistinctNode<K, D, W>>("DistinctNode")

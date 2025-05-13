@@ -11,20 +11,15 @@ export const prop45Input = <K0, D0 extends BaseA, W>(
   Sa: Stream.Stream<IZSet<K0, D0, W>>
 ) =>
   endNodeMake<K0, D0, W>()({
-    _tag: "EndNode",
     children: [
       distinctNodeMake<K0, D0, W>()({
-        _tag: "DistinctNode",
         children: [
           filterNodeMake<K0, D0, W>()({
-            _tag: "FilterNode",
             fn: (_, { a }) => a > 2,
             children: [
               distinctNodeMake<K0, D0, W>()({
-                _tag: "DistinctNode",
                 children: [
                   streamNodeMake<K0, D0, W>()({
-                    _tag: "StreamNode",
                     stream: Sa,
                     children: []
                   })
@@ -41,17 +36,13 @@ export const prop45Expectation = <K0, D0 extends BaseA, W>(
   Sa: Stream.Stream<IZSet<K0, D0, W>>
 ) =>
   endNodeMake<K0, D0, W>()({
-    _tag: "EndNode",
     children: [
       distinctNodeMake<K0, D0, W>()({
-        _tag: "DistinctNode",
         children: [
           filterNodeMake<K0, D0, W>()({
-            _tag: "FilterNode",
             fn: (_, { a }) => a > 2,
             children: [
               streamNodeMake<K0, D0, W>()({
-                _tag: "StreamNode",
                 stream: Sa,
                 children: []
               })

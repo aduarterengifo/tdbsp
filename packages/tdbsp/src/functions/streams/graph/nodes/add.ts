@@ -6,4 +6,4 @@ export type AddNode<K, D, W> = {
   children: [Node<K, D, W>, Node<K, D, W>] // takes nodes whose key is in K0.
 }
 
-export const addNodeMake = <K, D, W>() => Data.case<AddNode<K, D, W>>()
+export const addNodeMake = <K, D, W>() => Data.tagged<AddNode<K, D, W>>("AddNode")

@@ -7,4 +7,4 @@ export type JoinNode<K, D0, D1, D2, W> = {
   readonly fn: (a: D0, b: D1) => D2
 }
 
-export const joinNodeMake = <K, D0, D1, D2, W>() => Data.case<JoinNode<K, D0, D1, D2, W>>()
+export const joinNodeMake = <K, D0, D1, D2, W>() => Data.tagged<JoinNode<K, D0, D1, D2, W>>("JoinNode")

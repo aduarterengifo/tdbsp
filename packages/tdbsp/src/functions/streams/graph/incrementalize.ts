@@ -21,7 +21,7 @@ export const incrementalize = <K, D, W>(ring: Ring<W>) => (node: Node<K, D, W>):
 export const runProp45 = <K, D, W>(ring: Ring<W>) => (node: Node<K, D, W>): Node<K, D, W> => {
 }
 
-export const simplProp45 = (node: Node<K, D, W>): Node<K, D, W> => {
+export const simplProp45 = <K, D, W>(node: Node<K, D, W>): Node<K, D, W> => {
   Match.value(node).pipe(
     Match.tag("DistinctNode", (node) => {
       const [childNode] = node.children

@@ -7,4 +7,4 @@ export type IndexNode<K0, K1, D, W> = {
   readonly fn: (d: D) => K1
 }
 
-export const indexNodeMake = <K0, K1, D, W>() => Data.case<IndexNode<K0, K1, D, W>>()
+export const indexNodeMake = <K0, K1, D, W>() => Data.tagged<IndexNode<K0, K1, D, W>>("IndexNode")

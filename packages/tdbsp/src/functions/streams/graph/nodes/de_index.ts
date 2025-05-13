@@ -6,4 +6,4 @@ export type DeIndexNode<K, D, W> = {
   children: [Node<K, D, W>] // takes nodes whose output is D.
 }
 
-export const deIndexNodeMake = <K, D, W>() => Data.case<DeIndexNode<K, D, W>>()
+export const deIndexNodeMake = <K, D, W>() => Data.tagged<DeIndexNode<K, D, W>>("DeIndexNode")

@@ -7,4 +7,4 @@ export type MapNode<K, D0, D1, W> = {
   readonly fn: (d: D0) => D1
 }
 
-export const mapNodeMake = <K, D0, D1, W>() => Data.case<MapNode<K, D0, D1, W>>()
+export const mapNodeMake = <K, D0, D1, W>() => Data.tagged<MapNode<K, D0, D1, W>>("MapNode")

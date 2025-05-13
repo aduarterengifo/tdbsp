@@ -6,4 +6,4 @@ export type UnionNode<K, D, W> = {
   children: [Node<K, D, W>, Node<K, D, W>] // takes nodes whose key is in K0.
 }
 
-export const unionNodeMake = <K, D, W>() => Data.case<UnionNode<K, D, W>>()
+export const unionNodeMake = <K, D, W>() => Data.tagged<UnionNode<K, D, W>>("UnionNode")

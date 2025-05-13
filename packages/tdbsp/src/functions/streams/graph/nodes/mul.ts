@@ -7,4 +7,4 @@ export type MulNode<K, D, W> = {
   readonly fn: (d: D) => D
 }
 
-export const mulNodeMake = <K, D, W>() => Data.case<MulNode<K, D, W>>()
+export const mulNodeMake = <K, D, W>() => Data.tagged<MulNode<K, D, W>>("MulNode")

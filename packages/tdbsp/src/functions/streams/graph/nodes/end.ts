@@ -6,4 +6,4 @@ export type EndNode<K, D, W> = {
   children: [Node<K, D, W>]
 }
 
-export const endNodeMake = <K, D, W>() => Data.case<EndNode<K, D, W>>()
+export const endNodeMake = <K, D, W>() => Data.tagged<EndNode<K, D, W>>("EndNode")

@@ -7,4 +7,4 @@ export type StreamNode<K, D, W> = {
   children: []
 }
 
-export const streamNodeMake = <K, D, W>() => Data.case<StreamNode<K, D, W>>()
+export const streamNodeMake = <K, D, W>() => Data.tagged<StreamNode<K, D, W>>("StreamNode")
