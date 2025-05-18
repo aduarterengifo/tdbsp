@@ -21,7 +21,7 @@ export function Incremental() {
             {/* <Stream data={changesA.map(x => [x, generateRandomString()])} element={(data, key) => <StreamElement data={data} key={key} />} />
             <Stream data={changesB.map(x => [x, generateRandomString()])} element={(data, key) => <StreamElement data={data} key={key} />} /> */}
             <IZSetStream data={changesA} />
-            <IZSetStream ZSetStream={changesB} />
+            <IZSetStream data={changesB} />
             <pre className="text-xs">
                 {`
 SELECT DISTINCT a . x , b . y FROM ( 

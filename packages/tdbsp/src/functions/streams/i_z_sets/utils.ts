@@ -7,7 +7,7 @@ export const logStream = <K, D0, W>(s: Stream.Stream<IZSet<K, D0, W>>) =>
     const chunk = yield* Stream.runCollect(s)
     const arr = Chunk.toReadonlyArray(chunk)
 
-    yield* Effect.logInfo(arr.map((v) => IZSetPretty(v)).join(" "))
+    // yield* Effect.logInfo(arr.map((v) => IZSetPretty(v)).join(" "))
   })
 
 export const IZSetPretty = <K, D, W>(self: IZSet<K, D, W>) =>

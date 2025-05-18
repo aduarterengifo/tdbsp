@@ -5,10 +5,12 @@ import type {BaseA} from "@a33/tdbsp/src/data/a"
 import type {BaseB} from "@a33/tdbsp/src/data/b"
 import type { BaseJoined } from "@a33/tdbsp/src/data/c"
 import  { Sa, Sa1, Sb, Sb1 } from "@a33/tdbsp/src/data/streams/input"
+import  { SaFull, SbFull } from "@a33/tdbsp/src/data/streams/app_inputs"
 import {egStaticTree} from "@a33/tdbsp/src/functions/streams/graph/examples/static_tree"
 import {exec} from "@a33/tdbsp/src/functions/streams/graph/exec"
 
 import {randomGen} from "@a33/tdbsp/src/functions/i_z_set/random_gen"
+import {simplAndIncrementalize} from "@a33/tdbsp/src/functions/streams/graph/incrementalize"
 
 import {Z} from "@a33/tdbsp/src/objs/z"
 
@@ -18,12 +20,13 @@ export function CtxProvider({ children }: PropsWithChildren) {
 	const [time, setTime] = useState(1);
 
 	// these will always begin with something FOR SIMPLICITY!!! 
-	const [streamA, setStreamA] = useState<Stream.Stream<IZSet<number,BaseA,number>>>(Sa);
-	const [streamB, setStreamB] = useState<Stream.Stream<IZSet<number,BaseB, number>>>(Sb);
+	const [streamA, setStreamA] = useState<Stream.Stream<IZSet<number,BaseA,number>>>(SaFull);
+	const [streamB, setStreamB] = useState<Stream.Stream<IZSet<number,BaseB, number>>>(SbFull);
 	const [streamAChanges, setStreamAChanges] = useState<Stream.Stream<IZSet<number,BaseA,number>>>(Sa);
 	const [streamBChanges, setStreamBChanges] = useState<Stream.Stream<IZSet<number,BaseB, number>>>(Sb);
 	const [streamIncremental, setStreamIncremental] = useState<Stream.Stream<IZSet<number, BaseJoined, number>>>(pipe(
-        egStaticTree(Sa, Sb),
+		egStaticTree(Sa, Sb),
+        simplAndIncrementalize<number, BaseJoined, number>(Z),
         exec(Z)
       ));
 	const [streamStatic, setStreamStatic] = useState<Stream.Stream<IZSet<number,BaseJoined, number>>>(pipe(
@@ -49,18 +52,20 @@ export function CtxProvider({ children }: PropsWithChildren) {
             console.log('inside condition')
             const lastA = Option.getOrNull(Chunk.last(sA))!
 
-            const A = randomGen(Sa1)(lastA)
+            const A = randomGen<number,BaseA,number>(Z)(Sa1)(lastA)
 
             console.log('random gen',Array.from(A.newZSet.index),Array.from(A.changeInstance.index))
 
             const newStreamA = Stream.concatAll(Chunk.make(streamA,Stream.make(A.newZSet)))
+
+			console.log('newStreamA', newStreamA)
 
 			const newStreamAChanges = Stream.concatAll(Chunk.make(streamAChanges,Stream.make(A.changeInstance))) 
 
             console.log('newStreamAChanges', newStreamAChanges)
             const lastB = Option.getOrNull(Chunk.last(sB))!
 
-            const B = randomGen(Sb1)(lastB)
+            const B = randomGen<number,BaseB,number>(Z)(Sb1)(lastB)
 
             const newStreamB = Stream.concatAll(Chunk.make(streamB,Stream.make(B.newZSet)))
 

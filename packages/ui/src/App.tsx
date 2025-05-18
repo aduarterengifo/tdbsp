@@ -11,7 +11,7 @@ function App() {
         <div className='grid grid-cols-2 grid-rows-[max-content_minmax(0,1fr)] min-h-svh font-mono place-items-center'>
           <Controls />
           <Static />
-          {/* <Incremental /> */}
+          <Incremental />
         </div>
     </CtxProvider>
   )

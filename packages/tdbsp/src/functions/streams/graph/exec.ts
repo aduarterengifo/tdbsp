@@ -2,6 +2,7 @@ import type { Stream } from "effect"
 import { Effect, Match } from "effect"
 import type { IZSet, ZSet } from "../../../objs/i_z_set.js"
 import type { Ring } from "../../../objs/ring.js"
+import { iZSetDelayOp } from "../abelian-group/i_zset_stream/delay.js"
 import { deltaDistinct } from "../i_z_sets/delta/distinct.js"
 import { deltaJoin } from "../i_z_sets/delta/join.js"
 import { add } from "../lifted_add.js"
@@ -83,7 +84,11 @@ export const exec = <K, D, W>(ring: Ring<W>) => (node: Node<K, D, W>): Stream.St
     Match.tag("DeltaJoinNode", ({ children, fn }) => {
       const [a, b] = children.map(exec<K, D, W>(ring))
       // biome-ignore lint/suspicious/noExplicitAny: PROBLEMS
-      return Effect.runSync(deltaJoin<K, any, D, D, W>(ring)(fn)(a)(b))
+      return Effect.runSync(deltaJoin<K, any, D, D, W>(ring)(fn)(a)(b)) // someday we'll have to address this
+    }),
+    Match.tag("DelayNode", ({ children }) => {
+      const [a] = children.map(exec<K, D, W>(ring))
+      return iZSetDelayOp<K, D, W>(ring)(a)
     }),
     Match.exhaustive
   )

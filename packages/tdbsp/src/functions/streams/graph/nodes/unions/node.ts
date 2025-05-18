@@ -1,5 +1,6 @@
 import type { AddNode } from "../add.js"
 import type { DeIndexNode } from "../de_index.js"
+import type { DelayNode } from "../delay.js"
 import type { DeltaDistinctNode } from "../delta-distinct.js"
 import type { DeltaJoinNode } from "../delta-join.js"
 import type { DistinctNode } from "../distinct.js"
@@ -28,3 +29,4 @@ export type Node<K, D, W> =
   | UnionNode<K, D, W>
   | DeltaDistinctNode<K, D, W>
   | DeltaJoinNode<K, any, any, D, W>
+  | DelayNode<K, D, W>

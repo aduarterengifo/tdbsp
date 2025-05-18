@@ -22,7 +22,6 @@ export const deltaCircuitExample = <
   Sb: Stream.Stream<IZSet<K, D1, W>>
 ): Effect.Effect<Stream.Stream<IZSet<number, BaseJoined, W>>, never, never> =>
   Effect.gen(function*() {
-    yield* Effect.logInfo("info")
     const fSa = pipe(
       Sa,
       filter<K, D0, W>((_, { a }) => a > 2),
