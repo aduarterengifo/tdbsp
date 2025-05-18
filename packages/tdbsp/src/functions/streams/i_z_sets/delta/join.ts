@@ -20,11 +20,15 @@ export const deltaJoin = <
 (Sb: Stream.Stream<IZSet<K, D1, W>>) =>
 (Sa: Stream.Stream<IZSet<K, D0, W>>): Effect.Effect<Stream.Stream<IZSet<K, D2, W>>, never, never> =>
   Effect.gen(function*() {
+    yield* logStream(Sa)
+    yield* logStream(Sb)
     const iSa = iZSetIntOp<K, D0, W>(ring)(Sa)
     yield* logStream(iSa)
     const iSb = iZSetIntOp<K, D1, W>(ring)(Sb)
     yield* logStream(iSb)
     const iDSb = iZSetDelayOp<K, D1, W>(ring)(iSb)
+    // what is the expectation for the delay?
+    yield* Effect.logInfo("delay")
     yield* logStream(iDSb)
 
     const jiSaSb = join<K, D0, D1, D2, W>(ring)(fn)(Sb)(iSa)

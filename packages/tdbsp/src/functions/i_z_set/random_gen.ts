@@ -2,8 +2,8 @@ import { HashMap } from "effect"
 import type { IZSet } from "../../objs/i_z_set.js"
 import type { Ring } from "../../objs/ring.js"
 import { randomElem } from "../utils/random.js"
+import { add } from "./binary/add.js"
 import { make } from "./make.js"
-import { setData } from "./unary/leak/set_data.js"
 
 export const randomGen =
   <K, D, W>(ring: Ring<W>) =>
@@ -15,8 +15,10 @@ export const randomGen =
     const d = randomElem(Array.from(HashMap.keys(zset)))
     const w = Math.random() < 0.5 ? ring.one : ring.sub(ring.zero, ring.one)
 
+    const izset = make<K, D, W>(HashMap.fromIterable([[key, HashMap.fromIterable([[d, w]])]]))
+
     return ({
-      newZSet: setData(key, d, w)(self),
-      changeInstance: make<K, D, W>(HashMap.fromIterable([[key, zset]]))
+      newZSet: add<K, D, W>(ring)([self, izset]),
+      changeInstance: izset
     })
   }

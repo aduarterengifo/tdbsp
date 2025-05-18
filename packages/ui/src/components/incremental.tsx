@@ -1,9 +1,10 @@
 import { useContext } from "react"
 import { Ctx } from "../state/ctx"
 import { IZSetStream } from "./izset_stream"
+import { StreamElement } from "./stream_element"
 
 export function Incremental() {
-    const { changesA, changesB, incrementalResult } = useContext(Ctx)
+    const { changesA, changesB, incrementalResult, incrementalView } = useContext(Ctx)
 
     // const dataA = sampleBaseA(10)
     // const dataB = sampleBaseB(10)
@@ -34,6 +35,7 @@ SELECT DISTINCT a . x , b . y FROM (
             {/* CIRCUIT RESULT  */}
             {/* <Stream data={dataB} element={(data, key) => <StreamElement data={data} key={key} />} /> */}
             <IZSetStream data={incrementalResult} />
+            <StreamElement data={incrementalView} />
         </div>
     )
 }

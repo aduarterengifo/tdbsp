@@ -12,7 +12,7 @@ import { Z } from "../../src/objs/z.js"
 describe("incrementalization", () => {
   it("basic", () => {
     const result = egIncrementalTree<number, BaseA, BaseB, number>(Z)(Sa, Sb)
-    const expectation = egIncrementalTreeExpectation(Z)(Sa, Sb)
+    const expectation = egIncrementalTreeExpectation(Sa, Sb)
 
     expect(softTreeEquality(result)(expectation)).toBe(true)
   })

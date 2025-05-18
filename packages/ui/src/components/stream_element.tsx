@@ -1,15 +1,28 @@
 import type { IZSet } from "@a33/tdbsp/src/objs/i_z_set";
 import { HashMap as HM, Option } from "effect";
-import type { ReactElement } from "react";
 
-export function StreamElement<T extends Record<string, number>>({ data }: { data: IZSet<number, T,number>}) {
+export function StreamElement<T extends Record<string, number>>({ data }: { data: IZSet<number, T, number> }) {
+    const indexEntries = Array.from(HM.entries(data.index));
+    const hasIndex = indexEntries.length > 0;
+
+    if (!hasIndex) {
+        return (
+            <div className="text-xs text-gray-400 italic p-2 w-[94px]">
+                No data available
+            </div>
+        );
+    }
+
     return (
         <>
-        {
-            HM.map<ReactElement<any, any>,HM.HashMap<T,number>,number>((zset, k) => <div className="grid-cols-2" key={`index-${k}`}><div>{k}</div><InternalStreamElement data={zset}/></div>)(data.index)
-        }
+            {indexEntries.map(([k, zset]) => (
+                <div className="grid-cols-[10px_max-content] grid gap-1" key={`index-${k}`}>
+                    <div>{k}</div>
+                    <InternalStreamElement data={zset} />
+                </div>
+            ))}
         </>
-    )
+    );
 }
 
 function InternalStreamElement<T extends Record<string, number>>({ data }: { data: HM.HashMap<T,number> }) {

@@ -3,7 +3,7 @@ import type { IZSet } from "@a33/tdbsp/src/objs/i_z_set"
 import type {BaseA} from "@a33/tdbsp/src/data/a"
 import type {BaseB} from "@a33/tdbsp/src/data/b"
 import type { BaseJoined } from "@a33/tdbsp/src/data/c"
-
+import {make} from "@a33/tdbsp/src/functions/i_z_set/make"
 
 import { Stream } from 'effect';
 
@@ -21,6 +21,8 @@ export type CTX<K,W> = {
 	changesB: readonly IZSet<K,BaseB,W>[];
 	staticResult: readonly IZSet<K,BaseJoined,W>[];
 	incrementalResult: readonly IZSet<K,BaseJoined,W>[];
+	staticView: IZSet<K,BaseJoined,W>;
+	incrementalView: IZSet<K,BaseJoined,W>;
 	setTime: (f: (x: number) => number) => void;
 	setStreamA: (
 		f: (x: Stream.Stream<IZSet<K,BaseA,W>>) => Stream.Stream<IZSet<K,BaseA,W>>,
@@ -66,6 +68,8 @@ export const Ctx = createContext<CTX<number,number>>({
 	changesB: [],
 	staticResult: [],
 	incrementalResult: [],
+	staticView: make<number,BaseJoined,number>(),
+	incrementalView: make<number,BaseJoined,number>(),
 	setTime: () => {},
 	setStreamA: () => {},
 	setStreamB: () => {},
@@ -75,8 +79,4 @@ export const Ctx = createContext<CTX<number,number>>({
 	setStreamStatic: () => {},
 	forward: () => {},
 	backward: () => {},
-	// setHistoryA: () => {},
-	// setHistoryB: () => {},
-	// setChangesA: () => {},
-	// setChangesB: () => {},
 });

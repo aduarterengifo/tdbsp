@@ -1,3 +1,4 @@
+import { Console } from "console"
 import type { Stream } from "effect"
 import { Effect, Match } from "effect"
 import type { IZSet, ZSet } from "../../../objs/i_z_set.js"
@@ -22,8 +23,9 @@ import type { Node } from "./nodes/unions/node.js"
 /**
  * executes the computation graph.
  */
-export const exec = <K, D, W>(ring: Ring<W>) => (node: Node<K, D, W>): Stream.Stream<IZSet<K, D, W>> =>
-  Match.value(node).pipe(
+export const exec = <K, D, W>(ring: Ring<W>) => (node: Node<K, D, W>): Stream.Stream<IZSet<K, D, W>> => {
+  // console.log("node", node._tag)
+  return Match.value(node).pipe(
     // binary
     Match.tag("AddNode", ({ children }) => {
       // get the stream of my two children
@@ -84,7 +86,7 @@ export const exec = <K, D, W>(ring: Ring<W>) => (node: Node<K, D, W>): Stream.St
     Match.tag("DeltaJoinNode", ({ children, fn }) => {
       const [a, b] = children.map(exec<K, D, W>(ring))
       // biome-ignore lint/suspicious/noExplicitAny: PROBLEMS
-      return Effect.runSync(deltaJoin<K, any, D, D, W>(ring)(fn)(a)(b)) // someday we'll have to address this
+      return Effect.runSync(deltaJoin<K, any, D, D, W>(ring)(fn)(b)(a)) // someday we'll have to address this
     }),
     Match.tag("DelayNode", ({ children }) => {
       const [a] = children.map(exec<K, D, W>(ring))
@@ -92,3 +94,4 @@ export const exec = <K, D, W>(ring: Ring<W>) => (node: Node<K, D, W>): Stream.St
     }),
     Match.exhaustive
   )
+}

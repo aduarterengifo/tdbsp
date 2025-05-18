@@ -1,9 +1,10 @@
 import { useContext } from "react"
 import { Ctx } from "../state/ctx"
 import { IZSetStream } from "./izset_stream"
+import { StreamElement } from "./stream_element"
 
 export function Static() {
-    const { historyA, historyB, staticResult } = useContext(Ctx)
+    const { historyA, historyB, staticResult, staticView } = useContext(Ctx)
     // const dataA = sampleBaseA(10)
     // const dataB = sampleBaseB(10)
 
@@ -32,6 +33,7 @@ SELECT DISTINCT a . x , b . y FROM (
                 `}
             </pre>
             <IZSetStream data={staticResult} />
+            <StreamElement data={staticView} />
             {/* CIRCUIT RESULT  */}
             {/* <Stream data={dataB} element={(data, key) => <StreamElement data={data} key={key} />} /> */}
         </div>

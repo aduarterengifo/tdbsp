@@ -22,8 +22,7 @@ export const egIncrementalTree = <K0, D0 extends BaseA, D1 extends BaseB, W>(rin
   Sb: Stream.Stream<IZSet<K0, D1, W>>
 ) => simplAndIncrementalize<number, BaseJoined, W>(ring)(egStaticTree(Sa, Sb))
 
-export const egIncrementalTreeExpectation = <K0, D0 extends BaseA, D1 extends BaseB, W>(ring: Ring<W>) =>
-(
+export const egIncrementalTreeExpectation = <K0, D0 extends BaseA, D1 extends BaseB, W>(
   Sa: Stream.Stream<IZSet<K0, D0, W>>,
   Sb: Stream.Stream<IZSet<K0, D1, W>>
 ) =>

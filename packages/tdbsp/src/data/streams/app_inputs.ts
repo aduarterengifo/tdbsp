@@ -52,7 +52,7 @@ const b = make<number, BaseA, number>(HM.fromIterable([
   ]
 ]))
 
-export const SaFull = Stream.make(Sa1, b)
+export const SaFull = Stream.make(Sa1)
 
 export const Sb1 = make<number, BaseB, number>(HM.fromIterable([
   [
@@ -103,4 +103,4 @@ const d = make<number, BaseB, number>(HM.fromIterable([
   ]
 ]))
 
-export const SbFull = Stream.make(Sb1, d)
+export const SbFull = Stream.make(Sb1)
