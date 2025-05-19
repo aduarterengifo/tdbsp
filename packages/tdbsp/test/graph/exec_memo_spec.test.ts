@@ -176,12 +176,15 @@ describe("stream delta example circuit", () => {
 
       const sA = Stream.fromIterable([1, 2, 3, 4])
       // const sC = delayNumber(Stream.fromQueue(queue))
-      // const result = Stream.zipWith(sA, sC, (a, b) => a + b)
+      const steamAdd = (s1: Stream.Stream<number, never, never>, s2: Stream.Stream<number, never, never>) =>
+        Stream.zipWith(s1, s2, (a, b) => a + b)
 
-      const t = pipe(
+      const result = pipe(
         sA,
         zipWithPrevious,
-        Stream.flatMap(([x, y]) => Stream.zipWith(x, y, (a, b) => a + b))
+        Stream.flatMap(([x, y]) =>
+          steamAdd(Stream.fromIterable([Option.getOrElse(x, () => 0)]), Stream.fromIterable([y]))
+        )
       )
       // Stream.map((x) => x + 0)(sA)
 
@@ -197,7 +200,7 @@ describe("stream delta example circuit", () => {
       // //
       // const result = Stream.unfold(0, (n) => Option.some([n === 0 ? 0 : sA[0], n + 1]))
       // const alt = Stream.fromIterable([1, 2, 3])
-      const result = addWithPreviousOutput(sA)
+      const result3 = addWithPreviousOutput(sA)
 
       const result2 = sA.pipe(
         // Stream.scan(initialState, (state, element) => newState)
