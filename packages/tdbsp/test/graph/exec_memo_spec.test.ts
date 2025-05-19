@@ -2,7 +2,7 @@ import { describe, expect, it } from "@effect/vitest"
 import { Chunk, Data, Effect, HashMap as HM, Option, pipe, Queue, Stream } from "effect"
 import { zipWithPrevious } from "effect/Stream"
 import type { BaseJoined } from "../../src/data/c.js"
-import { Sa, Sb } from "../../src/data/streams/input.js"
+import { Sa, SaSimpl, Sb } from "../../src/data/streams/input.js"
 import { add as IZsetAdd } from "../../src/functions/i_z_set/binary/add.js"
 import { make } from "../../src/functions/i_z_set/make.js"
 import { equals } from "../../src/functions/streams/equals.js"
@@ -139,7 +139,45 @@ describe("stream delta example circuit", () => {
 
       expect(SeAll).toBe(true)
     }))
-  it.effect("simple", () =>
+  it.effect("cycle2", () =>
+    Effect.gen(function*() {
+      const result = yield* pipe(
+        recursiveAddTree2(SaSimpl),
+        execMemo(Z)
+      )
+
+      const expected = Stream.make(
+        make<number, BaseJoined, number>(HM.fromIterable([
+          [
+            4,
+            HM.fromIterable([[
+              Data.struct({
+                x: 2,
+                y: 3
+              }),
+              1
+            ]])
+          ]
+        ])),
+        make<number, BaseJoined, number>(HM.fromIterable([
+          [
+            6,
+            HM.fromIterable([[
+              Data.struct({
+                x: 1,
+                y: 5
+              }),
+              1
+            ]])
+          ]
+        ]))
+      )
+
+      const firstResult = yield* Stream.runCollect(result.pipe(Stream.take(4)))
+
+      expect(Chunk.toReadonlyArray(firstResult)).toStrictEqual([])
+    }))
+  it.effect("simple / no tree", () =>
     Effect.gen(function*() {
       // how the fuck would you even express this outside of this
       // yield* Effect.log("hey")

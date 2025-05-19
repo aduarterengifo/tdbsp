@@ -39,6 +39,12 @@ const b = make<number, BaseA, number>(HM.fromIterable([
 
 export const Sa = Stream.make(Sa1, b)
 
+export const SaSimpl = Stream.make(
+  make<number, number, number>(HM.fromIterable([[0, HM.fromIterable([[1, 1]])]])),
+  make<number, number, number>(HM.fromIterable([[0, HM.fromIterable([[2, 1]])]])),
+  make<number, number, number>(HM.fromIterable([[0, HM.fromIterable([[3, 1]])]]))
+)
+
 export const Sb1 = make<number, BaseB, number>(HM.fromIterable([
   [
     0,

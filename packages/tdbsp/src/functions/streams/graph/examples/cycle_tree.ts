@@ -26,20 +26,21 @@ export const recursiveAddTree = <K, W>(
     })
   )
 
-export const recursiveAddTree2 = <K, W>(
-  Sa: Stream.Stream<IZSet<K, BaseA, W>>
+export const recursiveAddTree2 = <K, T, W>(
+  Sa: Stream.Stream<IZSet<K, T, W>>
 ) =>
-  fixPointNodeMake<K, BaseA, W>()({
+  fixPointNodeMake<K, T, W>()({
+    streams: [Sa],
     fn: (delayedStream) =>
-      endNodeMake<K, BaseA, W>()({
+      endNodeMake<K, T, W>()({
         children: [
-          addNodeMake<K, BaseA, W>()({
+          addNodeMake<K, T, W>()({
             children: [
-              streamNodeMake<K, BaseA, W>()({
+              streamNodeMake<K, T, W>()({
                 stream: Sa,
                 children: []
               }),
-              streamNodeMake<K, BaseA, W>()({
+              streamNodeMake<K, T, W>()({
                 stream: delayedStream,
                 children: []
               })
