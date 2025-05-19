@@ -4,10 +4,7 @@ import type { BaseJoined } from "../../src/data/c.js"
 import { Sa, Sb } from "../../src/data/streams/input.js"
 import { make } from "../../src/functions/i_z_set/make.js"
 import { equals } from "../../src/functions/streams/equals.js"
-import {
-  egIncrementalTree,
-  egIncrementalTreeExpectation
-} from "../../src/functions/streams/graph/examples/incremetal_tree.js"
+import { egIncrementalTree } from "../../src/functions/streams/graph/examples/incremetal_tree.js"
 import { exec } from "../../src/functions/streams/graph/exec.js"
 import { Z } from "../../src/objs/z.js"
 

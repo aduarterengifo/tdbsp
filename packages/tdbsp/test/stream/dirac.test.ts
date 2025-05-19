@@ -3,7 +3,7 @@ import { Chunk, Effect, HashMap as HM, pipe, Stream } from "effect"
 import { diractDelta } from "../../src/functions/streams/dirac_delta.js"
 import { Z } from "../../src/objs/z.js"
 
-describe("stream lifted sub", () => {
+describe("dirac delta function", () => {
   it.effect("basic", () =>
     Effect.gen(function*() {
       const result = diractDelta(Z)(5)

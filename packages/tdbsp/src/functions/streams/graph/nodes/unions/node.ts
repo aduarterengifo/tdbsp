@@ -6,6 +6,7 @@ import type { DeltaJoinNode } from "../delta-join.js"
 import type { DistinctNode } from "../distinct.js"
 import type { EndNode } from "../end.js"
 import type { FilterNode } from "../filter.js"
+import type { FixPointNode } from "../fixpoint.js"
 import type { IndexNode } from "../index.js"
 import type { JoinNode } from "../join.js"
 import type { MapNode } from "../map.js"
@@ -30,3 +31,4 @@ export type Node<K, D, W> =
   | DeltaDistinctNode<K, D, W>
   | DeltaJoinNode<K, any, any, D, W>
   | DelayNode<K, D, W>
+  | FixPointNode<K, D, W>
