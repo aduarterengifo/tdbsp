@@ -166,6 +166,9 @@ describe("stream delta example circuit", () => {
       ))
 
       expect(SeAll).toBe(true)
+      // Also check that the result and expected streams are the same size
+      const expectedArr = Chunk.toReadonlyArray(yield* Stream.runCollect(expected))
+      expect(firstArr.length).toBe(expectedArr.length)
     }).pipe(
       Logger.withMinimumLogLevel(LogLevel.All),
       Effect.provide(Logger.pretty)

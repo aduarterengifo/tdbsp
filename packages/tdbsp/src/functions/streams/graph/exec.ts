@@ -1,4 +1,4 @@
-import { Console, Effect, Match, Option, pipe, Queue, Stream } from "effect"
+import { Chunk, Console, Effect, Match, Option, pipe, Queue, Stream } from "effect"
 import type { NoSuchElementException } from "effect/Cause"
 import type { IZSet, ZSet } from "../../../objs/i_z_set.js"
 import type { Ring } from "../../../objs/ring.js"
@@ -233,14 +233,34 @@ export const execEffect =
         )),
       Match.tag("FixPointNode", ({ fn, streams }) =>
         Effect.gen(function*() {
+          // const fixpoint = (
+          //   input: Stream.Stream<IZSet<K, D, W>, NoSuchElementException, never>,
+          //   prevLength: number = -1
+          // ): Effect.Effect<Stream.Stream<IZSet<K, D, W>, NoSuchElementException, never>> =>
+          //   Effect.gen(function*() {
+          //     const result = yield* go(fn(input))
+          //     const resultArray = yield* Stream.runCollect(result)
+          //     const currLength = resultArray.length
+
+          //     if (currLength > prevLength) {
+          //       return yield* fixpoint(Stream.fromIterable(resultArray), currLength)
+          //     } else {
+          //       return input
+          //     }
+          //   })
+
           let input: Stream.Stream<IZSet<K, D, W>, never | NoSuchElementException, never> = Stream.fromIterable([
             make<K, D, W>()
           ])
-
-          for (let i = 0; i < 3; i++) {
+          let prevLength = -1
+          let currLength = 0
+          do {
             const result = yield* go(fn(input))
-            input = Stream.concat(input, yield* Stream.runLast(result))
-          }
+            const resultArray = yield* Stream.runCollect(result)
+            prevLength = currLength
+            currLength = resultArray.length
+            input = Stream.concat(input, Chunk.last(resultArray))
+          } while (currLength > prevLength)
           return input.pipe(
             Stream.drop(1)
           )
