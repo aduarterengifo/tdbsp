@@ -5,6 +5,7 @@ import { make } from "../../i_z_set/make.js"
 import { iZSetDelayOp } from "../abelian-group/i_zset_stream/delay.js"
 import { deltaDistinct } from "../i_z_sets/delta/distinct.js"
 import { deltaJoin } from "../i_z_sets/delta/join.js"
+import { logStream } from "../i_z_sets/utils.js"
 import { add } from "../lifted_add.js"
 import { deindex } from "../lifted_de_index.js"
 import { distinct } from "../lifted_distinct.js"
@@ -229,162 +230,185 @@ export const execEffect =
           Effect.all(children.map(go)),
           Effect.flatMap(([a]) => Effect.succeed(iZSetDelayOp<K, D, W>(ring)(a)))
         )),
-      Match.tag("FixPointNode", ({ fn, streams }) => {
-        // const initialFeedback = make<K, D, W>()
+      Match.tag("FixPointNode", ({ fn, streams }) =>
+        Effect.gen(function*() {
+          let acc = Stream.fromIterable([make<K, D, W>()])
+          let res = Stream.fromIterable<IZSet<K, D, W>>([])
+          for (let i = 0; i < 3; i++) {
+            const result = fn(acc)
+            const newres = yield* go(result)
+            yield* logStream(newres)
+            acc = Stream.concat(acc, newres)
+            res = Stream.concat(res, newres)
+          }
+          yield* Effect.log("final answer")
+          yield* logStream(res)
+          return res
+        })),
+      // {
+      // const acc = Stream.fromIterable([make<K, D, W>()])
+      // for (const i = 0; i < 1; i + 1) {
+      // const result = fn(acc)
+      // const res = go(result)
+      // console.log("res", res)
+      // Stream.concat(acc, res)
+      // // }
+      // return Effect.succeed(acc)
+      // const initialFeedback = make<K, D, W>()
 
-        // const fixpointStream = Stream.unfoldEffect(initialFeedback, (feedback) => {
-        //   const feedbackStream = Stream.fromIterable([feedback])
-        //   const subgraphNode = fn(feedbackStream)
-        //   return go(subgraphNode).pipe(
-        //     Effect.flatMap((outputStream) =>
-        //       Stream.runHead(outputStream).pipe(
-        //         Effect.map((maybeNext) => maybeNext.map((next) => [next, next] as [IZSet<K, D, W>, IZSet<K, D, W>]))
-        //       )
-        //     )
-        //   )
-        // })
+      // const fixpointStream = Stream.unfoldEffect(initialFeedback, (feedback) => {
+      //   const feedbackStream = Stream.fromIterable([feedback])
+      //   const subgraphNode = fn(feedbackStream)
+      //   return go(subgraphNode).pipe(
+      //     Effect.flatMap((outputStream) =>
+      //       Stream.runHead(outputStream).pipe(
+      //         Effect.map((maybeNext) => maybeNext.map((next) => [next, next] as [IZSet<K, D, W>, IZSet<K, D, W>]))
+      //       )
+      //     )
+      //   )
+      // })
 
-        // return Effect.succeed(fixpointStream)
+      // return Effect.succeed(fixpointStream)
 
-        // const initialFeedback = make<K, D, W>()
+      // const initialFeedback = make<K, D, W>()
 
-        // // Helper to produce a stream from a feedback value
-        // const fixpoint = (feedback: IZSet<K, D, W>): Stream.Stream<IZSet<K, D, W>> => {
-        //   const feedbackStream = Stream.fromIterable([feedback])
-        //   const subgraphNode = fn(feedbackStream)
-        //   // go(subgraphNode) is Effect<Stream<IZSet<K, D, W>>>
-        //   return Stream.unwrap(
-        //     go(subgraphNode).pipe(
-        //       Effect.map((outputStream) =>
-        //         outputStream.pipe(
-        //           Stream.flatMap((output) =>
-        //             Stream.concat(
-        //               Stream.fromIterable([output]),
-        //               fixpoint(output)
-        //             )
-        //           )
-        //         )
-        //       )
-        //     )
-        //   )
-        // }
+      // // Helper to produce a stream from a feedback value
+      // const fixpoint = (feedback: IZSet<K, D, W>): Stream.Stream<IZSet<K, D, W>> => {
+      //   const feedbackStream = Stream.fromIterable([feedback])
+      //   const subgraphNode = fn(feedbackStream)
+      //   // go(subgraphNode) is Effect<Stream<IZSet<K, D, W>>>
+      //   return Stream.unwrap(
+      //     go(subgraphNode).pipe(
+      //       Effect.map((outputStream) =>
+      //         outputStream.pipe(
+      //           Stream.flatMap((output) =>
+      //             Stream.concat(
+      //               Stream.fromIterable([output]),
+      //               fixpoint(output)
+      //             )
+      //           )
+      //         )
+      //       )
+      //     )
+      //   )
+      // }
 
-        // return Effect.succeed(fixpoint(initialFeedback))
+      // return Effect.succeed(fixpoint(initialFeedback))
 
-        // const feedback = Stream.fromIterable([make<K, D, W>()])
+      // const feedback = Stream.fromIterable([make<K, D, W>()])
 
-        // const result = fn(feedback)
-        // const first = go(result)
+      // const result = fn(feedback)
+      // const first = go(result)
 
-        // const initialFeedback = make<K, D, W>()
+      // const initialFeedback = make<K, D, W>()
 
-        // // Recursive function to produce the fixpoint stream
-        // const fixpoint = (feedback: IZSet<K, D, W>): Stream.Stream<IZSet<K, D, W>> => {
-        //   // Create a stream from the current feedback
-        //   const feedbackStream = Stream.fromIterable([feedback])
-        //   // Get the subgraph node using the feedback stream
-        //   const subgraphNode = fn(feedbackStream)
-        //   // Execute the subgraph node to get the output stream
-        //   return Stream.unwrap(
-        //     go(subgraphNode).pipe(
-        //       Effect.map((outputStream) =>
-        //         outputStream.pipe(
-        //           Stream.flatMap((output) =>
-        //             Stream.concat(
-        //               Stream.fromIterable([output]),
-        //               fixpoint(output)
-        //             )
-        //           )
-        //         )
-        //       )
-        //     )
-        //   )
-        // }
+      // // Recursive function to produce the fixpoint stream
+      // const fixpoint = (feedback: IZSet<K, D, W>): Stream.Stream<IZSet<K, D, W>> => {
+      //   // Create a stream from the current feedback
+      //   const feedbackStream = Stream.fromIterable([feedback])
+      //   // Get the subgraph node using the feedback stream
+      //   const subgraphNode = fn(feedbackStream)
+      //   // Execute the subgraph node to get the output stream
+      //   return Stream.unwrap(
+      //     go(subgraphNode).pipe(
+      //       Effect.map((outputStream) =>
+      //         outputStream.pipe(
+      //           Stream.flatMap((output) =>
+      //             Stream.concat(
+      //               Stream.fromIterable([output]),
+      //               fixpoint(output)
+      //             )
+      //           )
+      //         )
+      //       )
+      //     )
+      //   )
+      // }
 
-        // const fixpointStream = Stream.mapAccum(initialFeedback, (feedback, _) => {
-        //   const feedbackStream = Stream.fromIterable([feedback])
-        //   const subgraphNode = fn(feedbackStream)
-        //   // You need to run the subgraphNode to get the output
-        //   const output = go(subgraphNode)
-        //   // Return the new feedback and the output
-        //   return [output, output]
-        // })(streams[0])
+      // const fixpointStream = Stream.mapAccum(initialFeedback, (feedback, _) => {
+      //   const feedbackStream = Stream.fromIterable([feedback])
+      //   const subgraphNode = fn(feedbackStream)
+      //   // You need to run the subgraphNode to get the output
+      //   const output = go(subgraphNode)
+      //   // Return the new feedback and the output
+      //   return [output, output]
+      // })(streams[0])
 
-        // return Effect.succeed(fixpointStream)
+      // return Effect.succeed(fixpointStream)
 
-        // Start the fixpoint computation
-        // return Effect.succeed(fixpoint(initialFeedback))
+      // Start the fixpoint computation
+      // return Effect.succeed(fixpoint(initialFeedback))
 
-        // const placeholder = Stream.fromIterable<IZSet<K, D, W>>([])
+      // const placeholder = Stream.fromIterable<IZSet<K, D, W>>([])
 
-        // const scanWithPreviousOutput = <A, B>(
-        //   initialValue: B, // The initial value for the "previous output" state
-        //   binaryOp: (inputElement: A, previousOutput: B) => B // The binary operation
-        // ) =>
-        // (stream: Stream.Stream<A>): Stream.Stream<B> =>
-        //   stream.pipe(
-        //     // mapAccum takes an initial state and a function that produces [newState, outputElement]
-        //     // In this case, the state is the "previous output", and the output element is the result of the binaryOp.
-        //     Stream.mapAccum(initialValue, (previousOutput, currentInput) => {
-        //       // Calculate the current output using the binary operation
-        //       const currentOutput = binaryOp(currentInput, previousOutput)
-        //       // The new state for the next iteration is the current output.
-        //       // The output element for the current step is also the current output.
-        //       return [currentOutput, currentOutput]
-        //     })
-        //   )
-        // a is the input
-        // b is the output
-        // scanWithPreviousOutput<W, W>(ring.zero, (a, b) => fn(Stream.fromIterable([b])))()
+      // const scanWithPreviousOutput = <A, B>(
+      //   initialValue: B, // The initial value for the "previous output" state
+      //   binaryOp: (inputElement: A, previousOutput: B) => B // The binary operation
+      // ) =>
+      // (stream: Stream.Stream<A>): Stream.Stream<B> =>
+      //   stream.pipe(
+      //     // mapAccum takes an initial state and a function that produces [newState, outputElement]
+      //     // In this case, the state is the "previous output", and the output element is the result of the binaryOp.
+      //     Stream.mapAccum(initialValue, (previousOutput, currentInput) => {
+      //       // Calculate the current output using the binary operation
+      //       const currentOutput = binaryOp(currentInput, previousOutput)
+      //       // The new state for the next iteration is the current output.
+      //       // The output element for the current step is also the current output.
+      //       return [currentOutput, currentOutput]
+      //     })
+      //   )
+      // a is the input
+      // b is the output
+      // scanWithPreviousOutput<W, W>(ring.zero, (a, b) => fn(Stream.fromIterable([b])))()
 
-        // I have a 2 element queue.
-        // const queue = Queue.bounded<IZSet<K, D, W>>(2)
+      // I have a 2 element queue.
+      // const queue = Queue.bounded<IZSet<K, D, W>>(2)
 
-        // const logic = queue.pipe(
-        //   Effect.flatMap((feedbackQueue) =>
-        //     Effect.gen(function*() {
-        //       // create a stream from the queue
+      // const logic = queue.pipe(
+      //   Effect.flatMap((feedbackQueue) =>
+      //     Effect.gen(function*() {
+      //       // create a stream from the queue
 
-        //       Queue.offer(ring.zero)
-        //       const feedbackInputHandle = Stream.fromQueue(feedbackQueue)
-        //       yield* Effect.log("hey")
-        //       // delay said stream
-        //       const delayedInput = iZSetDelayOp<K, D, W>(ring)(feedbackInputHandle)
-        //       // get the subgraph.
-        //       const rootOfRecursiveSubgraph = fn(delayedInput)
-        //       console.log("root", rootOfRecursiveSubgraph)
-        //       // evaluate the subgraph.
-        //       const outputStreamOfSubgraph = yield* go(rootOfRecursiveSubgraph)
-        //       console.log("output", outputStreamOfSubgraph)
-        //       // create effect for dumping elements of the stream to the queue.
-        //       const connectLoopEffect = Stream.runForEach(
-        //         outputStreamOfSubgraph,
-        //         (element) => {
-        //           console.log("element", element)
-        //           return Queue.offer(feedbackQueue, element)
-        //         }
-        //       )
+      //       Queue.offer(ring.zero)
+      //       const feedbackInputHandle = Stream.fromQueue(feedbackQueue)
+      //       yield* Effect.log("hey")
+      //       // delay said stream
+      //       const delayedInput = iZSetDelayOp<K, D, W>(ring)(feedbackInputHandle)
+      //       // get the subgraph.
+      //       const rootOfRecursiveSubgraph = fn(delayedInput)
+      //       console.log("root", rootOfRecursiveSubgraph)
+      //       // evaluate the subgraph.
+      //       const outputStreamOfSubgraph = yield* go(rootOfRecursiveSubgraph)
+      //       console.log("output", outputStreamOfSubgraph)
+      //       // create effect for dumping elements of the stream to the queue.
+      //       const connectLoopEffect = Stream.runForEach(
+      //         outputStreamOfSubgraph,
+      //         (element) => {
+      //           console.log("element", element)
+      //           return Queue.offer(feedbackQueue, element)
+      //         }
+      //       )
 
-        //       yield* connectLoopEffect
+      //       yield* connectLoopEffect
 
-        //       return outputStreamOfSubgraph
+      //       return outputStreamOfSubgraph
 
-        //       // return yield* Effect.forkDaemon(connectLoopEffect).pipe(
-        //       //   Effect.map((fiber) => {
-        //       //     // Return the output stream of the subgraph as the result of this Effect.
-        //       //     // We can add interruption logic to the stream based on the fiber or queue.
-        //       //     return outputStreamOfSubgraph.pipe(
-        //       //       Stream.interruptWhen(Fiber.await(fiber)), // Interrupt stream if the background fiber finishes
-        //       //       Stream.interruptWhen(Queue.isShutdown(feedbackQueue)) // Interrupt stream if the queue is shut down
-        //       //     ) as Stream.Stream<IZSet<K, D, W>> // Cast might still be needed depending on type flow
-        //       //   })
-        //       // )
-        //     })
-        //   )
-        // )
+      //       // return yield* Effect.forkDaemon(connectLoopEffect).pipe(
+      //       //   Effect.map((fiber) => {
+      //       //     // Return the output stream of the subgraph as the result of this Effect.
+      //       //     // We can add interruption logic to the stream based on the fiber or queue.
+      //       //     return outputStreamOfSubgraph.pipe(
+      //       //       Stream.interruptWhen(Fiber.await(fiber)), // Interrupt stream if the background fiber finishes
+      //       //       Stream.interruptWhen(Queue.isShutdown(feedbackQueue)) // Interrupt stream if the queue is shut down
+      //       //     ) as Stream.Stream<IZSet<K, D, W>> // Cast might still be needed depending on type flow
+      //       //   })
+      //       // )
+      //     })
+      //   )
+      // )
 
-        // return logic
-      }),
+      // return logic
+      // }),
       Match.exhaustive
     )
   }

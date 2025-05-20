@@ -1,16 +1,15 @@
 import { describe, expect, it } from "@effect/vitest"
-import { Chunk, Data, Effect, HashMap as HM, Option, pipe, Queue, Stream } from "effect"
+import { Chunk, Data, Effect, HashMap as HM, Logger, LogLevel, Option, pipe, Queue, Stream } from "effect"
 import { zipWithPrevious } from "effect/Stream"
 import type { BaseJoined } from "../../src/data/c.js"
 import { Sa, SaSimpl, Sb } from "../../src/data/streams/input.js"
 import { add as IZsetAdd } from "../../src/functions/i_z_set/binary/add.js"
 import { make } from "../../src/functions/i_z_set/make.js"
 import { equals } from "../../src/functions/streams/equals.js"
-import { recursiveAddTree, recursiveAddTree2 } from "../../src/functions/streams/graph/examples/cycle_tree.js"
+import { recursiveAddTree2 } from "../../src/functions/streams/graph/examples/cycle_tree.js"
 import { egStaticTree } from "../../src/functions/streams/graph/examples/static_tree.js"
-import { execEffect, execMemo } from "../../src/functions/streams/graph/exec.js"
-import { IZSetPretty } from "../../src/functions/streams/i_z_sets/utils.js"
-import { add } from "../../src/functions/streams/lifted_add.js"
+import { execMemo } from "../../src/functions/streams/graph/exec.js"
+import { IZSetPretty, logStream } from "../../src/functions/streams/i_z_sets/utils.js"
 import { sub } from "../../src/functions/streams/lifted_sub.js"
 import { Z } from "../../src/objs/z.js"
 
@@ -145,38 +144,25 @@ describe("stream delta example circuit", () => {
         recursiveAddTree2(SaSimpl),
         execMemo(Z)
       )
+      console.log("after")
+      yield* logStream(result)
 
       const expected = Stream.make(
-        make<number, BaseJoined, number>(HM.fromIterable([
-          [
-            4,
-            HM.fromIterable([[
-              Data.struct({
-                x: 2,
-                y: 3
-              }),
-              1
-            ]])
-          ]
-        ])),
-        make<number, BaseJoined, number>(HM.fromIterable([
-          [
-            6,
-            HM.fromIterable([[
-              Data.struct({
-                x: 1,
-                y: 5
-              }),
-              1
-            ]])
-          ]
-        ]))
+        make<number, number, number>(HM.fromIterable([[0, HM.fromIterable([[1, 1]])]])),
+        make<number, number, number>(HM.fromIterable([[0, HM.fromIterable([[2, 1], [1, 1]])]])),
+        make<number, number, number>(HM.fromIterable([[0, HM.fromIterable([[3, 1], [2, 1], [1, 1]])]]))
       )
-
+      // console.log("something")
       const firstResult = yield* Stream.runCollect(result.pipe(Stream.take(4)))
+      const firstArr = Chunk.toReadonlyArray(firstResult)
 
-      expect(Chunk.toReadonlyArray(firstResult)).toStrictEqual([])
-    }))
+      const expectedRes = yield* Stream.runCollect(expected.pipe(Stream.take(4)))
+      console.log(firstArr.length)
+      expect(firstArr).toStrictEqual(Chunk.toReadonlyArray(expectedRes))
+    }).pipe(
+      Logger.withMinimumLogLevel(LogLevel.All),
+      Effect.provide(Logger.pretty)
+    ))
   it.effect("simple / no tree", () =>
     Effect.gen(function*() {
       // how the fuck would you even express this outside of this
