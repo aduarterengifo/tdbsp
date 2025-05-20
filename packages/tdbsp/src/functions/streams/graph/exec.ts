@@ -1,4 +1,5 @@
 import { Console, Effect, Match, Option, pipe, Queue, Stream } from "effect"
+import type { NoSuchElementException } from "effect/Cause"
 import type { IZSet, ZSet } from "../../../objs/i_z_set.js"
 import type { Ring } from "../../../objs/ring.js"
 import { make } from "../../i_z_set/make.js"
@@ -232,6 +233,17 @@ export const execEffect =
         )),
       Match.tag("FixPointNode", ({ fn, streams }) =>
         Effect.gen(function*() {
+          let input: Stream.Stream<IZSet<K, D, W>, never | NoSuchElementException, never> = Stream.fromIterable([
+            make<K, D, W>()
+          ])
+
+          for (let i = 0; i < 3; i++) {
+            const result = yield* go(fn(input))
+            input = Stream.concat(input, yield* Stream.runLast(result))
+          }
+          return input.pipe(
+            Stream.drop(1)
+          )
         })),
       // old
       // Match.tag("FixPointNode", ({ fn, streams }) =>
