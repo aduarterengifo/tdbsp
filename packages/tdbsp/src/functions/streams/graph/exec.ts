@@ -233,58 +233,30 @@ export const execEffect =
         )),
       Match.tag("FixPointNode", ({ fn, streams }) =>
         Effect.gen(function*() {
-          // const fixpoint = (
-          //   input: Stream.Stream<IZSet<K, D, W>, NoSuchElementException, never>,
-          //   prevLength: number = -1
-          // ): Effect.Effect<Stream.Stream<IZSet<K, D, W>, NoSuchElementException, never>> =>
-          //   Effect.gen(function*() {
-          //     const result = yield* go(fn(input))
-          //     const resultArray = yield* Stream.runCollect(result)
-          //     const currLength = resultArray.length
+          const fixpoint = (
+            input: Stream.Stream<IZSet<K, D, W>, NoSuchElementException, never>,
+            prevLength: number = -1
+          ): Effect.Effect<Stream.Stream<IZSet<K, D, W>, NoSuchElementException, never>> =>
+            Effect.gen(function*() {
+              const res = yield* pipe(
+                input,
+                fn,
+                go,
+                Effect.flatMap(
+                  Stream.runCollect
+                )
+              )
 
-          //     if (currLength > prevLength) {
-          //       return yield* fixpoint(Stream.fromIterable(resultArray), currLength)
-          //     } else {
-          //       return input
-          //     }
-          //   })
+              if (res.length > prevLength) {
+                return yield* fixpoint(Stream.concat(input, Chunk.last(res)), res.length)
+              } else {
+                return input
+              }
+            })
 
-          let input: Stream.Stream<IZSet<K, D, W>, never | NoSuchElementException, never> = Stream.fromIterable([
-            make<K, D, W>()
-          ])
-          let prevLength = -1
-          let currLength = 0
-          do {
-            const result = yield* go(fn(input))
-            const resultArray = yield* Stream.runCollect(result)
-            prevLength = currLength
-            currLength = resultArray.length
-            input = Stream.concat(input, Chunk.last(resultArray))
-          } while (currLength > prevLength)
-          return input.pipe(
-            Stream.drop(1)
-          )
+          const resultStream = yield* fixpoint(Stream.fromIterable([make<K, D, W>()]))
+          return resultStream.pipe(Stream.drop(1))
         })),
-      // old
-      // Match.tag("FixPointNode", ({ fn, streams }) =>
-      //   Effect.gen(function*() {
-      //     yield* Effect.log("hey")
-
-      //     const acc = Stream.fromIterable([make<K, D, W>()])
-
-      //     const t = Stream.range(0, 1).pipe(
-      //       Stream.scanEffect(acc, (acc) =>
-      //         Effect.gen(function*() {
-      //           const t = yield* go(fn(acc))
-      //           yield* logStream(t)
-      //           return Stream.concat(acc, t)
-      //         }))
-      //     )
-
-      //     const opStream = yield* Stream.runLast<Stream.Stream<IZSet<K, D, W>>, never, never>(t)
-
-      //     return Option.getOrThrow(opStream)
-      //   })),
       Match.exhaustive
     )
   }
