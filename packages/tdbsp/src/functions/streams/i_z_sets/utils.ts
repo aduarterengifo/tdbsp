@@ -29,7 +29,7 @@ export const IZSetPretty = <K, D, W>(self: IZSet<K, D, W>) =>
       HM.reduce<string, HM.HashMap<D, W>, K>("", (acc, value, key) =>
         `${acc}\nkey: ${key}\n${
           HM.reduce<string, W, D>("", (acc, w, data) =>
-            `${JSON.stringify(data, null, 2)}\n${w}`)(value)
+            `${acc}\n${JSON.stringify(data, null, 2)}\n${w}`)(value)
         }`)(map),
     foldInternal<K, D, W, string>
   )(self)

@@ -149,15 +149,15 @@ describe("stream delta example circuit", () => {
 
       const expected = Stream.make(
         make<number, number, number>(HM.fromIterable([[0, HM.fromIterable([[1, 1]])]])),
-        make<number, number, number>(HM.fromIterable([[0, HM.fromIterable([[2, 1], [1, 1]])]])),
-        make<number, number, number>(HM.fromIterable([[0, HM.fromIterable([[3, 1], [2, 1], [1, 1]])]]))
+        make<number, number, number>(HM.fromIterable([[0, HM.fromIterable([[1, 1], [2, 1]])]])),
+        make<number, number, number>(HM.fromIterable([[0, HM.fromIterable([[1, 1], [2, 1], [3, 1]])]]))
       )
       // console.log("something")
-      const firstResult = yield* Stream.runCollect(result.pipe(Stream.take(4)))
+      const firstResult = yield* Stream.runCollect(result)
       const firstArr = Chunk.toReadonlyArray(firstResult)
+      console.log("length", firstArr.length)
 
-      const expectedRes = yield* Stream.runCollect(expected.pipe(Stream.take(4)))
-      console.log(firstArr.length)
+      const expectedRes = yield* Stream.runCollect(expected)
       expect(firstArr).toStrictEqual(Chunk.toReadonlyArray(expectedRes))
     }).pipe(
       Logger.withMinimumLogLevel(LogLevel.All),
