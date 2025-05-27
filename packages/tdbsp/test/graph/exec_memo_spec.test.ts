@@ -1,9 +1,7 @@
 import { describe, expect, it } from "@effect/vitest"
-import { Chunk, Data, Effect, HashMap as HM, Logger, LogLevel, Option, pipe, Queue, Stream } from "effect"
-import { zipWithPrevious } from "effect/Stream"
+import { Chunk, Data, Effect, HashMap as HM, Logger, LogLevel, pipe, Stream } from "effect"
 import type { BaseJoined } from "../../src/data/c.js"
 import { Sa, SaSimpl, Sb } from "../../src/data/streams/input.js"
-import { add as IZsetAdd } from "../../src/functions/i_z_set/binary/add.js"
 import { make } from "../../src/functions/i_z_set/make.js"
 import { equals } from "../../src/functions/streams/equals.js"
 import { recursiveAddTree2 } from "../../src/functions/streams/graph/examples/cycle_tree.js"
@@ -18,7 +16,7 @@ describe("stream delta example circuit", () => {
     Effect.gen(function*() {
       // const resultOld = yield* deltaCircuitExample<number, BaseA, BaseB, number>(Z)(Sa, Sb)
 
-      const result = pipe(
+      const result = yield* pipe(
         egStaticTree(Sa, Sb),
         execMemo(Z)
       )

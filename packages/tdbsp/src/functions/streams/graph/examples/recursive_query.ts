@@ -1,6 +1,5 @@
 import type { Stream } from "effect"
 import { Schema } from "effect"
-import { children } from "effect/Fiber"
 import { PrettyNumber } from "../../../../data/a.js"
 import type { IZSet } from "../../../../objs/i_z_set.js"
 import type { Ring } from "../../../../objs/ring.js"
@@ -24,6 +23,7 @@ export const Reach = Schema.Struct({
 
 export type Reach = typeof Reach.Type
 
+// transitive closure
 export const recursiveQuery = <K, W>(ring: Ring<W>) =>
 (
   Se: Stream.Stream<IZSet<K, Edges, W>>

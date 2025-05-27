@@ -4,6 +4,8 @@ import type { IZSet, ZSet } from "../../../objs/i_z_set.js"
 import type { Ring } from "../../../objs/ring.js"
 import { make } from "../../i_z_set/make.js"
 import { iZSetDelayOp } from "../abelian-group/i_zset_stream/delay.js"
+import { iZSetDiffOp } from "../abelian-group/i_zset_stream/diff.js"
+import { iZSetIntOp } from "../abelian-group/i_zset_stream/int.js"
 import { deltaDistinct } from "../i_z_sets/delta/distinct.js"
 import { deltaJoin } from "../i_z_sets/delta/join.js"
 import { logStream } from "../i_z_sets/utils.js"
@@ -98,12 +100,14 @@ export const exec = <K, D, W>(ring: Ring<W>) => (node: Node<K, D, W>): Stream.St
 }
 
 export const execMemo = <K, D, W>(ring: Ring<W>) => {
-  const memo = new WeakMap<Node<K, D, W>, Stream.Stream<IZSet<K, D, W>>>()
+  const memo = new WeakMap<Node<K, D, W>, Stream.Stream<IZSet<K, D, W>, NoSuchElementException | never, never>>()
 
   // go is a closure
   // on children execution we check if the node we want to evaluate has already been evaluated.
   // if it has we return that.
-  const go = (node: Node<K, D, W>): Effect.Effect<Stream.Stream<IZSet<K, D, W>>> =>
+  const go = (
+    node: Node<K, D, W>
+  ): Effect.Effect<Stream.Stream<IZSet<K, D, W>, NoSuchElementException | never, never>> =>
     Effect.gen(function*() {
       const memoNode = memo.get(node)
 
@@ -111,7 +115,7 @@ export const execMemo = <K, D, W>(ring: Ring<W>) => {
         return memoNode
       }
 
-      let placeholder: Stream.Stream<IZSet<K, D, W>> = Stream.empty
+      let placeholder: Stream.Stream<IZSet<K, D, W>, NoSuchElementException | never, never> = Stream.empty
       memo.set(node, placeholder) // safe lazy cycle
       yield* Effect.log("exec", node._tag)
       const result = yield* execEffect<K, D, W>(ring, go)(node)
@@ -125,7 +129,7 @@ export const execMemo = <K, D, W>(ring: Ring<W>) => {
 
 export const execEffect =
   <K, D, W>(ring: Ring<W>, go: (node: Node<K, D, W>) => Effect.Effect<Stream.Stream<IZSet<K, D, W>>>) =>
-  (node: Node<K, D, W>): Effect.Effect<Stream.Stream<IZSet<K, D, W>>> => {
+  (node: Node<K, D, W>): Effect.Effect<Stream.Stream<IZSet<K, D, W>, NoSuchElementException | never, never>> => {
     return Match.value(node).pipe(
       // binary
       Match.tag(
@@ -257,6 +261,16 @@ export const execEffect =
           const resultStream = yield* fixpoint(Stream.fromIterable([make<K, D, W>()]))
           return resultStream.pipe(Stream.drop(1))
         })),
+      Match.tag("DiffNode", ({ children }) =>
+        pipe(
+          Effect.all(children.map(go)),
+          Effect.flatMap(([a]) => Effect.succeed(iZSetDiffOp<K, D, W>(ring)(a)))
+        )),
+      Match.tag("IntegralNode", ({ children }) =>
+        pipe(
+          Effect.all(children.map(go)),
+          Effect.flatMap(([a]) => Effect.succeed(iZSetIntOp<K, D, W>(ring)(a)))
+        )),
       Match.exhaustive
     )
   }
