@@ -88,6 +88,7 @@ describe("stream lifted add", () => {
       const Sb = Stream.make(c, d, d)
 
       const result = add<number, number, number>(Z)(Sb)(Sa)
+      console.log("res", result)
 
       yield* logStream(result)
 

@@ -1,12 +1,12 @@
 import { describe, expect, it } from "@effect/vitest"
 import { Chunk, Effect, HashMap as HM, pipe, Stream } from "effect"
-import { diractDelta } from "../../src/functions/streams/dirac_delta.js"
+import { diracDelta } from "../../src/functions/streams/dirac_delta.js"
 import { Z } from "../../src/objs/z.js"
 
 describe("dirac delta function", () => {
   it.effect("basic", () =>
     Effect.gen(function*() {
-      const result = diractDelta(Z)(5)
+      const result = diracDelta(Z)(5)
 
       const result3 = Stream.take(result, 3)
 

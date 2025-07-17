@@ -5,11 +5,13 @@ import type { DeltaDistinctNode } from "../delta-distinct.js"
 import type { DeltaJoinNode } from "../delta-join.js"
 import type { DiffNode } from "../diff.js"
 import type { DistinctNode } from "../distinct.js"
+import type { ElimNode } from "../elim.js"
 import type { EndNode } from "../end.js"
 import type { FilterNode } from "../filter.js"
 import type { FixPointNode } from "../fixpoint.js"
 import type { IndexNode } from "../index.js"
 import type { IntegralNode } from "../integral.js"
+import type { IntroNode } from "../intro.js"
 import type { JoinNode } from "../join.js"
 import type { MapNode } from "../map.js"
 import type { MulNode } from "../mul.js"
@@ -36,3 +38,5 @@ export type Node<K, D, W> =
   | FixPointNode<K, D, W>
   | DiffNode<K, D, W>
   | IntegralNode<K, D, W>
+  | IntroNode<K, D, W>
+  | ElimNode<K, D, W>

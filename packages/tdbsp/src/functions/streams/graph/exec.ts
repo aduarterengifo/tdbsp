@@ -1,14 +1,17 @@
-import { Chunk, Console, Effect, Match, Option, pipe, Queue, Stream } from "effect"
+import { Chunk, Console, Effect, Match, Option, pipe, Queue, Schema, Stream } from "effect"
 import type { NoSuchElementException } from "effect/Cause"
 import type { IZSet, ZSet } from "../../../objs/i_z_set.js"
 import type { Ring } from "../../../objs/ring.js"
+import type { ScalarWrap } from "../../../objs/scalar_wrap.js"
 import { make } from "../../i_z_set/make.js"
 import { iZSetDelayOp } from "../abelian-group/i_zset_stream/delay.js"
 import { iZSetDiffOp } from "../abelian-group/i_zset_stream/diff.js"
 import { iZSetIntOp } from "../abelian-group/i_zset_stream/int.js"
+import { diractDeltaStreamWrap } from "../dirac_delta.js"
 import { deltaDistinct } from "../i_z_sets/delta/distinct.js"
 import { deltaJoin } from "../i_z_sets/delta/join.js"
 import { logStream } from "../i_z_sets/utils.js"
+import { integralAprox } from "../integral_aprox.js"
 import { add } from "../lifted_add.js"
 import { deindex } from "../lifted_de_index.js"
 import { distinct } from "../lifted_distinct.js"
@@ -127,9 +130,14 @@ export const execMemo = <K, D, W>(ring: Ring<W>) => {
   return go
 }
 
+// SOMETIMES PRODUCING A VALUE IS A FUCKING MESS.
+// THE ALWAYS RETURNS A STREAM ASSUMPTION IS DOING A LOT OF WORK.
+
 export const execEffect =
-  <K, D, W>(ring: Ring<W>, go: (node: Node<K, D, W>) => Effect.Effect<Stream.Stream<IZSet<K, D, W>>>) =>
-  (node: Node<K, D, W>): Effect.Effect<Stream.Stream<IZSet<K, D, W>, NoSuchElementException | never, never>> => {
+  <K, D, W>(ring: Ring<W>, go: (node: Node<K, D, W>) => Effect.Effect<Stream.Stream<IZSet<K, D, W> | ScalarWrap<W>>>) =>
+  (
+    node: Node<K, D, W>
+  ): Effect.Effect<Stream.Stream<IZSet<K, D, W> | ScalarWrap<W>, NoSuchElementException | never, never>> => {
     return Match.value(node).pipe(
       // binary
       Match.tag(
@@ -235,7 +243,7 @@ export const execEffect =
           Effect.all(children.map(go)),
           Effect.flatMap(([a]) => Effect.succeed(iZSetDelayOp<K, D, W>(ring)(a)))
         )),
-      Match.tag("FixPointNode", ({ fn, streams }) =>
+      Match.tag("FixPointNode", ({ fn }) =>
         Effect.gen(function*() {
           const fixpoint = (
             input: Stream.Stream<IZSet<K, D, W>, NoSuchElementException, never>,
@@ -270,6 +278,18 @@ export const execEffect =
         pipe(
           Effect.all(children.map(go)),
           Effect.flatMap(([a]) => Effect.succeed(iZSetIntOp<K, D, W>(ring)(a)))
+        )),
+      Match.tag("ElimNode", ({ children }) =>
+        pipe(
+          Effect.all(children.map(go)),
+          Effect.flatMap(([a]) => Effect.succeed(a as Stream.Stream<ScalarWrap<W>, never, never>)),
+          Effect.flatMap((a) => diractDeltaStreamWrap<W>(ring)(a))
+        )),
+      Match.tag("IntroNode", ({ children }) =>
+        pipe(
+          Effect.all(children.map(go)),
+          Effect.flatMap(([a]) => integralAprox<W>(ring)(a)),
+          Effect.flatMap((a) => Effect.succeed(Stream.fromIterable([a])))
         )),
       Match.exhaustive
     )
